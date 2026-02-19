@@ -222,18 +222,20 @@
 
     // Helper: get constructor from UMD bundle
     function getPeraCtor() {
-      // UMD exposes namespace object on window.PeraWalletConnect
       if (
         window.PeraWalletConnect &&
         typeof window.PeraWalletConnect.PeraWalletConnect === "function"
       ) {
         return window.PeraWalletConnect.PeraWalletConnect;
       }
-      // Fallback: some builds may expose directly as function
       if (typeof window.PeraWalletConnect === "function") {
         return window.PeraWalletConnect;
       }
       return null;
+    }
+
+    function goToDashboard() {
+      window.location.href = "frontend/dashboard.html";
     }
 
     // Initialize PeraWallet and attempt to reconnect on page load
@@ -263,6 +265,7 @@
           if (accounts && accounts.length > 0) {
             updateUI(accounts[0]);
             alert("Pera Wallet reconnected successfully.");
+            goToDashboard();
           } else {
             handleDisconnect();
           }
@@ -310,6 +313,7 @@
         if (accounts && accounts.length > 0) {
           updateUI(accounts[0]);
           alert("Pera Wallet connected successfully.");
+          goToDashboard();
         } else {
           alert("No accounts returned from Pera Wallet.");
         }
