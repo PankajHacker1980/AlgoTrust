@@ -1,161 +1,288 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Governance | AlgoTrust</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
-    <script src="https://unpkg.com/algosdk@2.4.0/dist/browser/algosdk.min.js"></script>
-    <style>
-        body { font-family: 'Inter', sans-serif; background-color: #F9FAFB; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Governance | AlgoTrust</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/algosdk@2.4.0/dist/browser/algosdk.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #fffaf5;
+      background-image:
+        radial-gradient(at 0% 0%, #fff7ed 0px, transparent 50%),
+        radial-gradient(at 100% 100%, #ffedd5 0px, transparent 50%);
+    }
+    .nav-glass {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      box-shadow: 0 20px 40px -10px rgba(234, 88, 12, 0.1);
+      border-radius: 40px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .glass-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 30px 60px -12px rgba(234, 88, 12, 0.15);
+      border-color: rgba(0, 0, 0, 0.15);
+    }
+    .badge-chip {
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+  </style>
 </head>
 <body class="min-h-screen pb-20">
 
-    <!-- Header Navigation -->
-    <nav class="bg-white/80 backdrop-blur-md border-b border-slate-100 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
-            <div class="flex items-center space-x-4">
-                <a href="dashboard.html" class="p-2 hover:bg-slate-100 rounded-full transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                    </svg>
-                </a>
-                <h1 class="text-xl font-bold text-slate-900">Campus Governance</h1>
-            </div>
-            <div id="wallet-pill" class="bg-blue-50 px-4 py-2 rounded-full border border-blue-100 text-blue-600 text-sm font-mono font-bold">
-                Connecting...
-            </div>
-        </div>
-    </nav>
+  <!-- Header Navigation -->
+  <nav class="nav-glass sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
+      <div class="flex items-center space-x-4">
+        <a href="dashboard.html" class="p-2 hover:bg-slate-100 rounded-full transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+        </a>
+        <h1 class="text-xl font-bold text-slate-900">Campus Governance</h1>
+      </div>
+      <div
+        id="wallet-pill"
+        class="bg-orange-50 px-4 py-2 rounded-full border border-orange-100 text-orange-600 text-sm font-mono font-bold"
+      >
+        Connecting...
+      </div>
+    </div>
+  </nav>
 
-    <main class="max-w-4xl mx-auto px-6 mt-12">
-        <!-- Hero Section -->
-        <div class="mb-12">
-            <h2 class="text-3xl font-bold text-slate-900 mb-4">Active Proposals</h2>
-            <p class="text-slate-500 text-lg leading-relaxed">Shape the future of our campus. Your vote is weighted by your student status and recorded permanently on the Algorand blockchain.</p>
-        </div>
+  <main class="max-w-4xl mx-auto px-6 mt-12">
+    <!-- Hero Section -->
+    <div class="mb-12">
+      <h2 class="text-3xl font-bold text-slate-900 mb-4">Active Proposals</h2>
+      <p class="text-slate-500 text-lg leading-relaxed">
+        Shape the future of our campus. Your vote is recorded permanently on the Algorand blockchain.
+      </p>
+    </div>
 
-        <!-- Proposal Card -->
-        <div id="proposal-container" class="space-y-8">
-            <div class="glass-card bg-white p-10 rounded-[40px] border border-white relative overflow-hidden">
-                <div class="flex justify-between items-start mb-6">
-                    <div>
-                        <span class="badge-chip bg-blue-100 text-blue-600 mb-3 inline-block">Governance</span>
-                        <h3 id="prop-title" class="text-2xl font-bold text-slate-900">Loading proposal...</h3>
-                        <p class="text-slate-500 mt-2">Shall the University increase funding for 24/7 library access during finals week?</p>
-                    </div>
-                    <div id="status-badge" class="px-4 py-1 bg-green-50 text-green-600 rounded-full text-xs font-bold uppercase tracking-widest">
-                        Live
-                    </div>
-                </div>
-
-                <!-- Voting Progress Stats -->
-                <div class="grid grid-cols-2 gap-8 mb-10">
-                    <div class="p-6 bg-slate-50 rounded-[24px] border border-slate-100">
-                        <p class="text-sm font-medium text-slate-400 mb-1">Yes Votes</p>
-                        <h4 id="yes-count" class="text-3xl font-bold text-slate-900">--</h4>
-                    </div>
-                    <div class="p-6 bg-slate-50 rounded-[24px] border border-slate-100">
-                        <p class="text-sm font-medium text-slate-400 mb-1">No Votes</p>
-                        <h4 id="no-count" class="text-3xl font-bold text-slate-900">--</h4>
-                    </div>
-                </div>
-
-                <!-- Combined Progress Bar -->
-                <div class="mb-10">
-                    <div class="flex justify-between text-xs font-bold text-slate-400 uppercase tracking-tighter mb-3">
-                        <span>Yes Tally</span>
-                        <span>No Tally</span>
-                    </div>
-                    <div class="h-4 bg-slate-100 rounded-full overflow-hidden flex">
-                        <div id="yes-bar" class="bg-indigo-600 transition-all duration-1000" style="width: 50%"></div>
-                        <div id="no-bar" class="bg-slate-300 transition-all duration-1000" style="width: 50%"></div>
-                    </div>
-                </div>
-
-                <!-- Actions -->
-                <div class="flex flex-col md:flex-row gap-4">
-                    <button id="vote-yes-btn" class="flex-1 py-5 bg-slate-900 text-white rounded-[20px] font-bold hover:bg-slate-800 transition-all active:scale-[0.98] flex items-center justify-center space-x-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
-                        <span>Vote Yes</span>
-                    </button>
-                    <button id="vote-no-btn" class="flex-1 py-5 bg-white text-slate-900 border border-slate-200 rounded-[20px] font-bold hover:bg-slate-50 transition-all active:scale-[0.98] flex items-center justify-center space-x-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                        <span>Vote No</span>
-                    </button>
-                </div>
-
-                <p class="text-[11px] text-slate-400 mt-6 text-center italic">
-                    You can only vote once. Voting requires a one-time Opt-In transaction to the smart contract.
-                </p>
-            </div>
+    <!-- Proposal Card -->
+    <div id="proposal-container" class="space-y-8">
+      <div class="glass-card p-10 relative overflow-hidden">
+        <div class="flex justify-between items-start mb-6">
+          <div>
+            <span class="badge-chip bg-blue-100 text-blue-600 mb-3 inline-block">Governance</span>
+            <h3 id="prop-title" class="text-2xl font-bold text-slate-900">Loading proposal...</h3>
+            <p id="prop-desc" class="text-slate-500 mt-2">
+              Shall the University increase funding for 24/7 library access during finals week?
+            </p>
+          </div>
+          <div
+            id="status-badge"
+            class="px-4 py-1 bg-green-50 text-green-600 rounded-full text-xs font-bold uppercase tracking-widest"
+          >
+            Live
+          </div>
         </div>
 
-        <!-- Placeholder for no active governance -->
-        <div id="no-proposal" class="hidden text-center py-20">
-            <h3 class="text-xl font-bold text-slate-800">No active proposals</h3>
-            <p class="text-slate-500">The student council hasn't posted any new items for voting yet.</p>
+        <!-- Voting Progress Stats -->
+        <div class="grid grid-cols-2 gap-8 mb-10">
+          <div class="p-6 bg-slate-50 rounded-[24px] border border-slate-100">
+            <p class="text-sm font-medium text-slate-400 mb-1">Yes Votes</p>
+            <h4 id="yes-count" class="text-3xl font-bold text-slate-900">--</h4>
+          </div>
+          <div class="p-6 bg-slate-50 rounded-[24px] border border-slate-100">
+            <p class="text-sm font-medium text-slate-400 mb-1">No Votes</p>
+            <h4 id="no-count" class="text-3xl font-bold text-slate-900">--</h4>
+          </div>
         </div>
-    </main>
 
-    <script type="module">
-        import { VotingModule } from './js/modules/voting.js';
-        import { PeraWalletManager } from './js/wallet.js';
-        import { truncateAddress } from './js/algorand.js';
+        <!-- Combined Progress Bar -->
+        <div class="mb-10">
+          <div class="flex justify-between text-xs font-bold text-slate-400 uppercase tracking-tighter mb-3">
+            <span>Yes Tally</span>
+            <span>No Tally</span>
+          </div>
+          <div class="h-4 bg-slate-100 rounded-full overflow-hidden flex">
+            <div id="yes-bar" class="bg-indigo-600 transition-all duration-1000" style="width: 50%"></div>
+            <div id="no-bar" class="bg-slate-300 transition-all duration-1000" style="width: 50%"></div>
+          </div>
+        </div>
 
-        const peraManager = new PeraWalletManager();
-        const address = localStorage.getItem('walletAddress');
+        <!-- Actions -->
+        <div class="flex flex-col md:flex-row gap-4">
+          <button
+            id="vote-yes-btn"
+            class="flex-1 py-5 bg-slate-900 text-white rounded-[20px] font-bold hover:bg-slate-800 transition-all active:scale-[0.98] flex items-center justify-center space-x-2"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            <span>Vote Yes</span>
+          </button>
+          <button
+            id="vote-no-btn"
+            class="flex-1 py-5 bg-white text-slate-900 border border-slate-200 rounded-[20px] font-bold hover:bg-slate-50 transition-all active:scale-[0.98] flex items-center justify-center space-x-2"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            <span>Vote No</span>
+          </button>
+        </div>
 
-        async function updateVotingUI() {
-            if (!address) return;
-            document.getElementById('wallet-pill').innerText = truncateAddress(address);
+        <p class="text-[11px] text-slate-400 mt-6 text-center italic">
+          You can only vote once. Voting requires an on-chain transaction to the smart contract.
+        </p>
+      </div>
+    </div>
 
-            const data = await VotingModule.fetchProposalData();
-            if (data && data.isActive) {
-                document.getElementById('prop-title').innerText = data.title;
-                document.getElementById('yes-count').innerText = data.yesVotes;
-                document.getElementById('no-count').innerText = data.noVotes;
+    <!-- Placeholder for no active governance -->
+    <div id="no-proposal" class="hidden text-center py-20">
+      <h3 class="text-xl font-bold text-slate-800">No active proposals</h3>
+      <p class="text-slate-500">
+        The student council hasn't posted any new items for voting yet.
+      </p>
+    </div>
+  </main>
 
-                const total = data.yesVotes + data.noVotes;
-                if (total > 0) {
-                    const yesPercent = (data.yesVotes / total) * 100;
-                    const noPercent = (data.noVotes / total) * 100;
-                    document.getElementById('yes-bar').style.width = `${yesPercent}%`;
-                    document.getElementById('no-bar').style.width = `${noPercent}%`;
-                }
-            } else {
-                document.getElementById('proposal-container').classList.add('hidden');
-                document.getElementById('no-proposal').classList.remove('hidden');
-            }
+  <script type="module">
+    import { VotingModule } from './js/modules/voting.js';
+
+    // DEMO WALLET: same Testnet mnemonic used in index/dashboard.
+    const DEMO_MNEMONIC =
+      "PASTE YOUR 25-WORD TESTNET MNEMONIC HERE";
+
+    let demoAccount = null;
+    try {
+      demoAccount = DEMO_MNEMONIC.trim()
+        ? algosdk.mnemonicToSecretKey(DEMO_MNEMONIC)
+        : null;
+    } catch (e) {
+      console.error("Invalid mnemonic in governance page:", e);
+      demoAccount = null;
+    }
+
+    const walletPill = document.getElementById('wallet-pill');
+    const titleEl = document.getElementById('prop-title');
+    const descEl = document.getElementById('prop-desc');
+    const yesCountEl = document.getElementById('yes-count');
+    const noCountEl = document.getElementById('no-count');
+    const yesBarEl = document.getElementById('yes-bar');
+    const noBarEl = document.getElementById('no-bar');
+
+    function truncateAddress(addr) {
+      if (!addr) return "";
+      return addr.slice(0, 4) + "..." + addr.slice(-4);
+    }
+
+    // Default demo proposal
+    const DEFAULT_DEMO_PROPOSAL = {
+      title: "Extend 24/7 Library Access During Finals Week",
+      description:
+        "Should the university fund 24/7 library access and additional study pods during the final examination period?",
+      yesVotes: 5,
+      noVotes: 2,
+      isActive: true
+    };
+
+    async function getProposalData() {
+      try {
+        const data = await VotingModule.fetchProposalData();
+        if (data && data.isActive) {
+          return {
+            title: data.title || DEFAULT_DEMO_PROPOSAL.title,
+            description: data.description || DEFAULT_DEMO_PROPOSAL.description,
+            yesVotes: typeof data.yesVotes === "number" ? data.yesVotes : DEFAULT_DEMO_PROPOSAL.yesVotes,
+            noVotes: typeof data.noVotes === "number" ? data.noVotes : DEFAULT_DEMO_PROPOSAL.noVotes,
+            isActive: true
+          };
         }
+        return DEFAULT_DEMO_PROPOSAL;
+      } catch (e) {
+        console.warn("Using demo proposal because fetchProposalData failed:", e);
+        return DEFAULT_DEMO_PROPOSAL;
+      }
+    }
 
-        async function handleVote(choice) {
-            const btnYes = document.getElementById('vote-yes-btn');
-            const btnNo = document.getElementById('vote-no-btn');
-            
-            btnYes.disabled = true;
-            btnNo.disabled = true;
+    async function updateVotingUI() {
+      const address = localStorage.getItem('walletAddress');
+      if (!address) {
+        // Not "logged in" → back to index
+        window.location.href = '../index.html';
+        return;
+      }
 
-            try {
-                await VotingModule.castVote(address, choice, peraManager);
-                alert("Vote cast successfully!");
-                window.location.reload();
-            } catch (err) {
-                console.error(err);
-                alert("Voting failed. Ensure you haven't already voted and have enough ALGO for fees.");
-            } finally {
-                btnYes.disabled = false;
-                btnNo.disabled = false;
-            }
+      walletPill.innerText = truncateAddress(address);
+
+      const data = await getProposalData();
+
+      if (data && data.isActive) {
+        titleEl.innerText = data.title;
+        descEl.innerText = data.description;
+        yesCountEl.innerText = data.yesVotes;
+        noCountEl.innerText = data.noVotes;
+
+        const total = data.yesVotes + data.noVotes;
+        if (total > 0) {
+          const yesPercent = (data.yesVotes / total) * 100;
+          const noPercent = (data.noVotes / total) * 100;
+          yesBarEl.style.width = `${yesPercent}%`;
+          noBarEl.style.width = `${noPercent}%`;
+        } else {
+          yesBarEl.style.width = `50%`;
+          noBarEl.style.width = `50%`;
         }
+      } else {
+        document.getElementById('proposal-container').classList.add('hidden');
+        document.getElementById('no-proposal').classList.remove('hidden');
+      }
+    }
 
-        document.getElementById('vote-yes-btn').addEventListener('click', () => handleVote(1));
-        document.getElementById('vote-no-btn').addEventListener('click', () => handleVote(0));
+    async function handleVote(choice) {
+      const address = localStorage.getItem('walletAddress');
+      if (!address || !demoAccount) {
+        alert("Wallet not configured or not connected.");
+        return;
+      }
 
-        updateVotingUI();
-    </script>
+      const btnYes = document.getElementById('vote-yes-btn');
+      const btnNo = document.getElementById('vote-no-btn');
+
+      btnYes.disabled = true;
+      btnNo.disabled = true;
+
+      try {
+        // VotingModule.castVote(address, choice, demoAccount)
+        await VotingModule.castVote(address, choice, demoAccount);
+        alert("Vote cast successfully!");
+        window.location.reload();
+      } catch (err) {
+        console.error(err);
+        alert("Voting failed. Ensure you haven't already voted and have enough ALGO for fees.");
+      } finally {
+        btnYes.disabled = false;
+        btnNo.disabled = false;
+      }
+    }
+
+    document
+      .getElementById('vote-yes-btn')
+      .addEventListener('click', () => handleVote(1));
+    document
+      .getElementById('vote-no-btn')
+      .addEventListener('click', () => handleVote(0));
+
+    updateVotingUI();
+  </script>
 </body>
 </html>

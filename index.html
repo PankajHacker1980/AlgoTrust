@@ -12,8 +12,6 @@
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
     rel="stylesheet"
   />
-  <!-- Algorand SDK -->
-  <script src="https://unpkg.com/algosdk@2.4.0/dist/browser/algosdk.min.js"></script>
 
   <style>
     body {
@@ -207,21 +205,8 @@
   </div>
 
   <script>
-    // DEMO: single Testnet account for the hackathon demo.
-    // 1) Create/fund a Testnet account.
-    // 2) Paste its 25-word mnemonic below.
-    const DEMO_MNEMONIC =
-      "PASTE YOUR 25-WORD TESTNET MNEMONIC HERE";
-
-    let demoAccount = null;
-    try {
-      demoAccount = DEMO_MNEMONIC.trim()
-        ? algosdk.mnemonicToSecretKey(DEMO_MNEMONIC)
-        : null;
-    } catch (e) {
-      console.error("Invalid mnemonic:", e);
-      demoAccount = null;
-    }
+    // DEMO: use a fake/static address string just for UI + navigation.
+    const DEMO_ADDRESS = "DEMO-ALGO-ADDRESS-1234";
 
     // DOM elements
     const connectBtn = document.getElementById("connect-btn");
@@ -233,7 +218,7 @@
     const addressText = document.getElementById("account-address");
 
     function goToDashboard() {
-      // Assuming this file is at project root and dashboard is in /frontend/
+      // Assuming index.html is at project root and dashboard in /frontend/
       window.location.href = "frontend/dashboard.html";
     }
 
@@ -247,18 +232,11 @@
       }
     });
 
-    // "Connect" click: log in with demo Testnet account
+    // "Connect" click: just log in with demo address
     connectBtn.addEventListener("click", () => {
-      if (!demoAccount) {
-        alert(
-          "Demo wallet is not configured. Paste a valid Testnet mnemonic in DEMO_MNEMONIC."
-        );
-        return;
-      }
-
       setLoading(true);
       try {
-        const address = demoAccount.addr;
+        const address = DEMO_ADDRESS;
         updateUI(address);
         goToDashboard();
       } finally {
