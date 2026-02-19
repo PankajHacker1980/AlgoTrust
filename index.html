@@ -157,6 +157,7 @@
         <div class="space-y-5">
           <button
             id="connect-btn"
+            type="button"
             class="orange-btn w-full py-5 text-white font-bold rounded-[24px] flex items-center justify-center space-x-3 text-lg shadow-lg shadow-orange-200/50"
           >
             <img
@@ -206,13 +207,21 @@
   </div>
 
   <script>
-    // DEMO: use a single Testnet account for the hackathon demo.
-    // Generate one with AlgoExplorer Testnet or goal, then paste mnemonic here.
+    // DEMO: single Testnet account for the hackathon demo.
+    // 1) Create/fund a Testnet account.
+    // 2) Paste its 25-word mnemonic below.
     const DEMO_MNEMONIC =
       "PASTE YOUR 25-WORD TESTNET MNEMONIC HERE";
-    const demoAccount = DEMO_MNEMONIC.trim()
-      ? algosdk.mnemonicToSecretKey(DEMO_MNEMONIC)
-      : null;
+
+    let demoAccount = null;
+    try {
+      demoAccount = DEMO_MNEMONIC.trim()
+        ? algosdk.mnemonicToSecretKey(DEMO_MNEMONIC)
+        : null;
+    } catch (e) {
+      console.error("Invalid mnemonic:", e);
+      demoAccount = null;
+    }
 
     // DOM elements
     const connectBtn = document.getElementById("connect-btn");
@@ -224,6 +233,7 @@
     const addressText = document.getElementById("account-address");
 
     function goToDashboard() {
+      // Assuming this file is at project root and dashboard is in /frontend/
       window.location.href = "frontend/dashboard.html";
     }
 
@@ -237,11 +247,11 @@
       }
     });
 
-    // "Connect" click: just log in with demo Testnet account
-    connectBtn.addEventListener("click", async () => {
+    // "Connect" click: log in with demo Testnet account
+    connectBtn.addEventListener("click", () => {
       if (!demoAccount) {
         alert(
-          "Demo wallet is not configured yet. Please set DEMO_MNEMONIC in the script."
+          "Demo wallet is not configured. Paste a valid Testnet mnemonic in DEMO_MNEMONIC."
         );
         return;
       }
