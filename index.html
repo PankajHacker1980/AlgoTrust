@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Algorand SDK -->
     <script src="https://unpkg.com/algosdk@2.4.0/dist/browser/algosdk.min.js"></script>
-    <!-- Pera Wallet Connect SDK - latest 1.4.2 UMD build for browser -->
+    <!-- Pera Wallet Connect SDK - browser UMD build -->
     <script src="https://cdn.jsdelivr.net/npm/@perawallet/connect@1.4.2/dist/umd/index.min.js"></script>
 
     <style>
@@ -143,13 +143,24 @@
         const statusPanel = document.getElementById('wallet-status');
         const addressText = document.getElementById('account-address');
 
+        // Helper: resolve constructor from UMD (default export vs direct)
+        function getPeraCtor() {
+            if (window.PeraWalletConnect && typeof window.PeraWalletConnect === "function") {
+                return window.PeraWalletConnect;
+            }
+            if (window.PeraWalletConnect && typeof window.PeraWalletConnect.default === "function") {
+                return window.PeraWalletConnect.default;
+            }
+            return null;
+        }
+
         // Initialize PeraWallet and attempt to reconnect on page load
         window.addEventListener('load', () => {
-            // In the UMD build, the constructor is exposed on window.PeraWalletConnect
-            if (window.PeraWalletConnect) {
-                peraWallet = new window.PeraWalletConnect();
+            const PeraCtor = getPeraCtor();
 
-                // Try to restore previous session
+            if (PeraCtor) {
+                peraWallet = new PeraCtor();
+
                 peraWallet
                     .reconnectSession()
                     .then((accounts) => {
@@ -167,8 +178,8 @@
                         handleDisconnect();
                     });
             } else {
-                console.error("Pera Wallet SDK failed to load. Please check your internet connection or CDN link.");
-                alert("Pera Wallet SDK failed to load. Check network / script URL.");
+                console.error("Pera Wallet SDK global not found on window. Check CDN response and network.");
+                alert("Pera Wallet SDK could not be initialized. Open DevTools → Console for details.");
             }
         });
 
@@ -202,7 +213,7 @@
 
             setLoading(true);
             try {
-                const accounts = await peraWallet.connect(); // returns array of addresses[web:22]
+                const accounts = await peraWallet.connect();
 
                 peraWallet.connector?.on("disconnect", handleDisconnect);
 
