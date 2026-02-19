@@ -14,8 +14,6 @@
   />
   <!-- Algorand SDK -->
   <script src="https://unpkg.com/algosdk@2.4.0/dist/browser/algosdk.min.js"></script>
-  <!-- Pera Wallet Connect SDK: npm UMD bundle via jsDelivr -->
-  <script src="https://cdn.jsdelivr.net/npm/@perawallet/connect@1.4.2/dist/umd/index.min.js"></script>
 
   <style>
     body {
@@ -208,8 +206,13 @@
   </div>
 
   <script>
-    // Global PeraWallet instance
-    let peraWallet = null;
+    // DEMO: use a single Testnet account for the hackathon demo.
+    // Generate one with AlgoExplorer Testnet or goal, then paste mnemonic here.
+    const DEMO_MNEMONIC =
+      "PASTE YOUR 25-WORD TESTNET MNEMONIC HERE";
+    const demoAccount = DEMO_MNEMONIC.trim()
+      ? algosdk.mnemonicToSecretKey(DEMO_MNEMONIC)
+      : null;
 
     // DOM elements
     const connectBtn = document.getElementById("connect-btn");
@@ -220,110 +223,44 @@
     const statusPanel = document.getElementById("wallet-status");
     const addressText = document.getElementById("account-address");
 
-    // Get constructor from UMD bundle
-    function getPeraCtor() {
-      if (
-        window.PeraWalletConnect &&
-        typeof window.PeraWalletConnect.PeraWalletConnect === "function"
-      ) {
-        return window.PeraWalletConnect.PeraWalletConnect;
-      }
-      if (typeof window.PeraWalletConnect === "function") {
-        return window.PeraWalletConnect;
-      }
-      return null;
-    }
-
     function goToDashboard() {
       window.location.href = "frontend/dashboard.html";
     }
 
-    // Initialize PeraWallet and attempt to reconnect on page load
+    // On load: auto-login if we already have a wallet address saved
     window.addEventListener("load", () => {
-      const PeraCtor = getPeraCtor();
+      const storedAddress = localStorage.getItem("walletAddress");
+      if (storedAddress) {
+        updateUI(storedAddress);
+        // Optional: auto-redirect
+        // goToDashboard();
+      }
+    });
 
-      if (!PeraCtor) {
-        console.error(
-          "Pera Wallet SDK global not found. window.PeraWalletConnect =",
-          window.PeraWalletConnect
-        );
+    // "Connect" click: just log in with demo Testnet account
+    connectBtn.addEventListener("click", async () => {
+      if (!demoAccount) {
         alert(
-          "Pera Wallet SDK could not be initialized. Check DevTools → Console."
+          "Demo wallet is not configured yet. Please set DEMO_MNEMONIC in the script."
         );
-        return;
-      }
-
-      peraWallet = new PeraCtor();
-
-      peraWallet
-        .reconnectSession()
-        .then((accounts) => {
-          peraWallet.connector?.on("disconnect", handleDisconnect);
-
-          if (accounts && accounts.length > 0) {
-            updateUI(accounts[0]);
-            goToDashboard();
-          } else {
-            handleDisconnect();
-          }
-        })
-        .catch((err) => {
-          console.info("No active Pera Wallet session found.", err);
-          handleDisconnect();
-        });
-    });
-
-    // Connect button click
-    connectBtn.addEventListener("click", handleConnect);
-
-    // Disconnect button click
-    disconnectBtn.addEventListener("click", () => {
-      if (!peraWallet) {
-        handleDisconnect();
-        return;
-      }
-      peraWallet
-        .disconnect()
-        .then(() => {
-          handleDisconnect();
-          alert("Wallet disconnected.");
-        })
-        .catch(() => {
-          handleDisconnect();
-          alert("Wallet disconnected (local session cleared).");
-        });
-    });
-
-    // Connect handler
-    async function handleConnect() {
-      if (!peraWallet) {
-        alert("Pera Wallet SDK not initialized. Please refresh the page.");
         return;
       }
 
       setLoading(true);
       try {
-        const accounts = await peraWallet.connect(); // Promise<string[]>[web:22]
-
-        peraWallet.connector?.on("disconnect", handleDisconnect);
-
-        if (accounts && accounts.length > 0) {
-          updateUI(accounts[0]);
-          goToDashboard();
-        } else {
-          alert("No accounts returned from Pera Wallet.");
-        }
-      } catch (error) {
-        if (error?.data?.type !== "CONNECT_MODAL_CLOSED") {
-          console.error("Connection error:", error);
-          alert(
-            "Connection failed. Ensure Pera Wallet is installed and try again."
-          );
-        }
+        const address = demoAccount.addr;
+        updateUI(address);
+        goToDashboard();
       } finally {
         setLoading(false);
       }
-    }
+    });
+
+    // "Sign Out" click
+    disconnectBtn.addEventListener("click", () => {
+      handleDisconnect();
+      alert("Wallet session cleared.");
+    });
 
     function updateUI(address) {
       addressText.innerText = address;
@@ -344,7 +281,7 @@
 
     function setLoading(isLoading) {
       if (isLoading) {
-        btnText.innerText = "Checking Pera...";
+        btnText.innerText = "Checking wallet...";
         btnLoader.classList.remove("hidden");
         connectBtn.disabled = true;
         connectBtn.style.opacity = "0.7";
