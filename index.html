@@ -1,268 +1,336 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AlgoTrust | University Governance</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Inter Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Algorand SDK -->
-    <script src="https://unpkg.com/algosdk@2.4.0/dist/browser/algosdk.min.js"></script>
-    <!-- Pera Wallet Connect SDK - browser UMD build -->
-    <script src="https://cdn.jsdelivr.net/npm/@perawallet/connect@1.4.2/dist/umd/index.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AlgoTrust | University Governance</title>
 
-    <style>
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: #fffaf5; 
-            background-image: 
-                radial-gradient(at 0% 0%, #fff7ed 0px, transparent 50%),
-                radial-gradient(at 100% 100%, #ffedd5 0px, transparent 50%);
-        }
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Inter Font -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <!-- Algorand SDK -->
+  <script src="https://unpkg.com/algosdk@2.4.0/dist/browser/algosdk.min.js"></script>
+  <!-- Pera Wallet SDK (browser bundle that exposes window.PeraWalletConnect) -->
+  <script src="https://perawallet.app/pera-wallet-connect/peraWalletConnect.min.js"></script>
 
-        .glass-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(0, 0, 0, 0.12);
-            box-shadow: 0 40px 100px -20px rgba(234, 88, 12, 0.15), 0 20px 40px -15px rgba(0, 0, 0, 0.1);
-            border-radius: 40px;
-        }
+  <style>
+    body {
+      font-family: "Inter", sans-serif;
+      background-color: #fffaf5;
+      background-image: radial-gradient(at 0% 0%, #fff7ed 0px, transparent 50%),
+        radial-gradient(at 100% 100%, #ffedd5 0px, transparent 50%);
+    }
 
-        .orange-btn {
-            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      box-shadow: 0 40px 100px -20px rgba(234, 88, 12, 0.15),
+        0 20px 40px -15px rgba(0, 0, 0, 0.1);
+      border-radius: 40px;
+    }
 
-        .orange-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 30px -5px rgba(234, 88, 12, 0.3);
-        }
+    .orange-btn {
+      background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
-        .orange-btn:active {
-            transform: scale(0.96);
-        }
+    .orange-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 30px -5px rgba(234, 88, 12, 0.3);
+    }
 
-        .loader {
-            border-top-color: transparent;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { 
-            0% { transform: rotate(0deg); } 
-            100% { transform: rotate(360deg); } 
-        }
-    </style>
+    .orange-btn:active {
+      transform: scale(0.96);
+    }
+
+    .loader {
+      border-top-color: transparent;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-6 md:p-12">
+  <div
+    class="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-16 items-center"
+  >
+    <!-- Left Side: Branding -->
+    <div class="space-y-10 lg:pr-10">
+      <div
+        class="inline-flex items-center space-x-3 bg-white px-5 py-2 rounded-full border border-orange-100 shadow-sm"
+      >
+        <span
+          class="flex h-2.5 w-2.5 rounded-full bg-orange-500 animate-pulse"
+        ></span>
+        <span
+          class="text-xs font-bold tracking-widest text-orange-600 uppercase"
+          >RIFT 2026 Hackathon</span
+        >
+      </div>
 
-    <div class="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-        
-        <!-- Left Side: Branding -->
-        <div class="space-y-10 lg:pr-10">
-            <div class="inline-flex items-center space-x-3 bg-white px-5 py-2 rounded-full border border-orange-100 shadow-sm">
-                <span class="flex h-2.5 w-2.5 rounded-full bg-orange-500 animate-pulse"></span>
-                <span class="text-xs font-bold tracking-widest text-orange-600 uppercase">RIFT 2026 Hackathon</span>
-            </div>
-            
-            <div class="space-y-6">
-                <h1 class="text-7xl font-extrabold text-stone-900 tracking-tighter leading-[1.05]">
-                    Campus <br/>
-                    <span class="text-orange-600">Governance.</span>
-                </h1>
-                
-                <p class="text-xl text-stone-500 leading-relaxed max-w-lg">
-                    A decentralized hub for students to vote on proposals, fund campus initiatives, and settle club expenses—securely on Algorand.
-                </p>
-            </div>
+      <div class="space-y-6">
+        <h1
+          class="text-7xl font-extrabold text-stone-900 tracking-tighter leading-[1.05]"
+        >
+          Campus <br />
+          <span class="text-orange-600">Governance.</span>
+        </h1>
 
-            <div class="flex items-center space-x-6 pt-4">
-                <div class="flex -space-x-3">
-                    <div class="h-12 w-12 rounded-full border-4 border-[#fffaf5] bg-orange-100 flex items-center justify-center text-orange-600 font-bold">VOTE</div>
-                    <div class="h-12 w-12 rounded-full border-4 border-[#fffaf5] bg-orange-200 flex items-center justify-center text-orange-700 font-bold">FUND</div>
-                    <div class="h-12 w-12 rounded-full border-4 border-[#fffaf5] bg-orange-300 flex items-center justify-center text-orange-800 font-bold">GOV</div>
-                </div>
-                <p class="text-sm font-semibold text-stone-400 uppercase tracking-widest">Powered by AlgoKit</p>
-            </div>
+        <p class="text-xl text-stone-500 leading-relaxed max-w-lg">
+          A decentralized hub for students to vote on proposals, fund campus
+          initiatives, and settle club expenses—securely on Algorand.
+        </p>
+      </div>
+
+      <div class="flex items-center space-x-6 pt-4">
+        <div class="flex -space-x-3">
+          <div
+            class="h-12 w-12 rounded-full border-4 border-[#fffaf5] bg-orange-100 flex items-center justify-center text-orange-600 font-bold"
+          >
+            VOTE
+          </div>
+          <div
+            class="h-12 w-12 rounded-full border-4 border-[#fffaf5] bg-orange-200 flex items-center justify-center text-orange-700 font-bold"
+          >
+            FUND
+          </div>
+          <div
+            class="h-12 w-12 rounded-full border-4 border-[#fffaf5] bg-orange-300 flex items-center justify-center text-orange-800 font-bold"
+          >
+            GOV
+          </div>
         </div>
-
-        <!-- Right Side: Login Card -->
-        <div class="glass-card p-10 md:p-14 relative overflow-hidden">
-            <div class="relative z-10">
-                <div class="text-center mb-12">
-                    <h2 class="text-3xl font-bold text-stone-800">Student Portal</h2>
-                    <p class="text-stone-500 mt-2">Connect your wallet to access the hub</p>
-                </div>
-
-                <!-- Wallet Info Area -->
-                <div id="wallet-status" class="hidden mb-10 p-6 bg-orange-50/50 rounded-3xl border border-orange-200/40 transition-all duration-500">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-[10px] font-bold text-orange-500 uppercase tracking-widest">Verified Student Account</span>
-                        <button id="disconnect-btn" class="text-[10px] text-stone-400 hover:text-red-500 underline font-bold uppercase tracking-widest">Sign Out</button>
-                    </div>
-                    <p id="account-address" class="text-sm font-mono text-stone-700 truncate font-semibold">--</p>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="space-y-5">
-                    <button id="connect-btn" class="orange-btn w-full py-5 text-white font-bold rounded-[24px] flex items-center justify-center space-x-3 text-lg shadow-lg shadow-orange-200/50">
-                        <img src="https://perawallet.app/static/images/logos/pera-logo-white.svg" class="h-6 w-6" alt="">
-                        <span id="btn-text">Connect Pera Wallet</span>
-                        <div id="btn-loader" class="hidden w-5 h-5 border-2 border-white rounded-full loader ml-2"></div>
-                    </button>
-
-                    <!-- Link to dashboard -->
-                    <a id="enter-dashboard" href="frontend/dashboard.html" class="hidden w-full py-5 bg-stone-900 text-white rounded-[24px] font-bold text-center block text-lg transition-all hover:bg-stone-800 hover:shadow-xl active:scale-95">
-                        Enter Dashboard
-                    </a>
-                </div>
-
-                <div class="mt-14 pt-8 border-t border-stone-100 flex justify-between items-center opacity-40">
-                    <div class="flex items-center space-x-2">
-                        <div class="h-2 w-2 bg-stone-400 rounded-full"></div>
-                        <span class="text-[10px] font-bold tracking-widest uppercase">Algorand Testnet</span>
-                    </div>
-                    <span id="app-id-display" class="text-[10px] font-bold tracking-widest uppercase">App ID: 722602737</span>
-                </div>
-            </div>
-            
-            <div class="absolute -top-24 -right-24 w-64 h-64 bg-orange-100/50 rounded-full blur-[80px]"></div>
-        </div>
+        <p
+          class="text-sm font-semibold text-stone-400 uppercase tracking-widest"
+        >
+          Powered by AlgoKit
+        </p>
+      </div>
     </div>
 
-    <script>
-        // Global variable for PeraWallet instance
-        let peraWallet = null;
+    <!-- Right Side: Login Card -->
+    <div class="glass-card p-10 md:p-14 relative overflow-hidden">
+      <div class="relative z-10">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl font-bold text-stone-800">Student Portal</h2>
+          <p class="text-stone-500 mt-2">
+            Connect your wallet to access the hub
+          </p>
+        </div>
 
-        // DOM elements
-        const connectBtn = document.getElementById('connect-btn');
-        const disconnectBtn = document.getElementById('disconnect-btn');
-        const btnText = document.getElementById('btn-text');
-        const btnLoader = document.getElementById('btn-loader');
-        const enterBtn = document.getElementById('enter-dashboard');
-        const statusPanel = document.getElementById('wallet-status');
-        const addressText = document.getElementById('account-address');
+        <!-- Wallet Info Area -->
+        <div
+          id="wallet-status"
+          class="hidden mb-10 p-6 bg-orange-50/50 rounded-3xl border border-orange-200/40 transition-all duration-500"
+        >
+          <div class="flex items-center justify-between mb-2">
+            <span
+              class="text-[10px] font-bold text-orange-500 uppercase tracking-widest"
+              >Verified Student Account</span
+            >
+            <button
+              id="disconnect-btn"
+              class="text-[10px] text-stone-400 hover:text-red-500 underline font-bold uppercase tracking-widest"
+            >
+              Sign Out
+            </button>
+          </div>
+          <p
+            id="account-address"
+            class="text-sm font-mono text-stone-700 truncate font-semibold"
+          >
+            --
+          </p>
+        </div>
 
-        // Helper: resolve constructor from UMD (default export vs direct)
-        function getPeraCtor() {
-            if (window.PeraWalletConnect && typeof window.PeraWalletConnect === "function") {
-                return window.PeraWalletConnect;
-            }
-            if (window.PeraWalletConnect && typeof window.PeraWalletConnect.default === "function") {
-                return window.PeraWalletConnect.default;
-            }
-            return null;
-        }
+        <!-- Action Buttons -->
+        <div class="space-y-5">
+          <button
+            id="connect-btn"
+            class="orange-btn w-full py-5 text-white font-bold rounded-[24px] flex items-center justify-center space-x-3 text-lg shadow-lg shadow-orange-200/50"
+          >
+            <img
+              src="https://perawallet.app/static/images/logos/pera-logo-white.svg"
+              class="h-6 w-6"
+              alt=""
+            />
+            <span id="btn-text">Connect Pera Wallet</span>
+            <div
+              id="btn-loader"
+              class="hidden w-5 h-5 border-2 border-white rounded-full loader ml-2"
+            ></div>
+          </button>
 
-        // Initialize PeraWallet and attempt to reconnect on page load
-        window.addEventListener('load', () => {
-            const PeraCtor = getPeraCtor();
+          <!-- Link to dashboard -->
+          <a
+            id="enter-dashboard"
+            href="frontend/dashboard.html"
+            class="hidden w-full py-5 bg-stone-900 text-white rounded-[24px] font-bold text-center block text-lg transition-all hover:bg-stone-800 hover:shadow-xl active:scale-95"
+          >
+            Enter Dashboard
+          </a>
+        </div>
 
-            if (PeraCtor) {
-                peraWallet = new PeraCtor();
+        <div
+          class="mt-14 pt-8 border-t border-stone-100 flex justify-between items-center opacity-40"
+        >
+          <div class="flex items-center space-x-2">
+            <div class="h-2 w-2 bg-stone-400 rounded-full"></div>
+            <span
+              class="text-[10px] font-bold tracking-widest uppercase"
+              >Algorand Testnet</span
+            >
+          </div>
+          <span
+            id="app-id-display"
+            class="text-[10px] font-bold tracking-widest uppercase"
+            >App ID: 722602737</span
+          >
+        </div>
+      </div>
 
-                peraWallet
-                    .reconnectSession()
-                    .then((accounts) => {
-                        peraWallet.connector?.on("disconnect", handleDisconnect);
+      <div
+        class="absolute -top-24 -right-24 w-64 h-64 bg-orange-100/50 rounded-full blur-[80px]"
+      ></div>
+    </div>
+  </div>
 
-                        if (accounts && accounts.length > 0) {
-                            updateUI(accounts[0]);
-                            alert("Pera Wallet reconnected successfully.");
-                        } else {
-                            handleDisconnect();
-                        }
-                    })
-                    .catch((err) => {
-                        console.info("No active Pera Wallet session found.", err);
-                        handleDisconnect();
-                    });
+  <script>
+    // Global variable for PeraWallet instance
+    let peraWallet = null;
+
+    // DOM elements
+    const connectBtn = document.getElementById("connect-btn");
+    const disconnectBtn = document.getElementById("disconnect-btn");
+    const btnText = document.getElementById("btn-text");
+    const btnLoader = document.getElementById("btn-loader");
+    const enterBtn = document.getElementById("enter-dashboard");
+    const statusPanel = document.getElementById("wallet-status");
+    const addressText = document.getElementById("account-address");
+
+    // Initialize PeraWallet and attempt to reconnect on page load
+    window.addEventListener("load", () => {
+      if (window.PeraWalletConnect) {
+        peraWallet = new PeraWalletConnect();
+
+        peraWallet
+          .reconnectSession()
+          .then((accounts) => {
+            peraWallet.connector?.on("disconnect", handleDisconnect);
+
+            if (accounts && accounts.length > 0) {
+              updateUI(accounts[0]);
+              alert("Pera Wallet reconnected successfully.");
             } else {
-                console.error("Pera Wallet SDK global not found on window. Check CDN response and network.");
-                alert("Pera Wallet SDK could not be initialized. Open DevTools → Console for details.");
+              handleDisconnect();
             }
+          })
+          .catch((err) => {
+            console.info("No active Pera Wallet session found.", err);
+            handleDisconnect();
+          });
+      } else {
+        console.error(
+          "Pera Wallet SDK global not found on window. Check peraWalletConnect.min.js load."
+        );
+        alert(
+          "Pera Wallet SDK could not be initialized. Open DevTools → Network and Console."
+        );
+      }
+    });
+
+    // Connect button click
+    connectBtn.addEventListener("click", handleConnect);
+
+    // Disconnect button click
+    disconnectBtn.addEventListener("click", () => {
+      if (!peraWallet) {
+        handleDisconnect();
+        return;
+      }
+      peraWallet
+        .disconnect()
+        .then(() => {
+          handleDisconnect();
+          alert("Wallet disconnected.");
+        })
+        .catch(() => {
+          handleDisconnect();
+          alert("Wallet disconnected (local session cleared).");
         });
+    });
 
-        // Connect button click
-        connectBtn.addEventListener('click', handleConnect);
+    // Connect handler
+    async function handleConnect() {
+      if (!peraWallet) {
+        alert("Pera Wallet SDK not initialized. Please refresh the page.");
+        return;
+      }
 
-        // Disconnect button click
-        disconnectBtn.addEventListener('click', () => {
-            if (!peraWallet) {
-                handleDisconnect();
-                return;
-            }
-            peraWallet
-                .disconnect()
-                .then(() => {
-                    handleDisconnect();
-                    alert("Wallet disconnected.");
-                })
-                .catch(() => {
-                    handleDisconnect();
-                    alert("Wallet disconnected (local session cleared).");
-                });
-        });
+      setLoading(true);
+      try {
+        const accounts = await peraWallet.connect();
 
-        // Connect handler
-        async function handleConnect() {
-            if (!peraWallet) {
-                alert("Pera Wallet SDK not initialized. Please refresh the page.");
-                return;
-            }
+        peraWallet.connector?.on("disconnect", handleDisconnect);
 
-            setLoading(true);
-            try {
-                const accounts = await peraWallet.connect();
-
-                peraWallet.connector?.on("disconnect", handleDisconnect);
-
-                if (accounts && accounts.length > 0) {
-                    updateUI(accounts[0]);
-                    alert("Pera Wallet connected successfully.");
-                } else {
-                    alert("No accounts returned from Pera Wallet.");
-                }
-            } catch (error) {
-                if (error?.data?.type !== "CONNECT_MODAL_CLOSED") {
-                    console.error("Connection error:", error);
-                    alert("Connection failed. Ensure Pera Wallet is installed and try again.");
-                }
-            } finally {
-                setLoading(false);
-            }
+        if (accounts && accounts.length > 0) {
+          updateUI(accounts[0]);
+          alert("Pera Wallet connected successfully.");
+        } else {
+          alert("No accounts returned from Pera Wallet.");
         }
-
-        function updateUI(address) {
-            addressText.innerText = address;
-            localStorage.setItem('walletAddress', address);
-
-            statusPanel.classList.remove('hidden');
-            connectBtn.classList.add('hidden');
-            enterBtn.classList.remove('hidden');
+      } catch (error) {
+        if (error?.data?.type !== "CONNECT_MODAL_CLOSED") {
+          console.error("Connection error:", error);
+          alert("Connection failed. Ensure Pera Wallet is installed and try again.");
         }
+      } finally {
+        setLoading(false);
+      }
+    }
 
-        function handleDisconnect() {
-            localStorage.removeItem('walletAddress');
-            statusPanel.classList.add('hidden');
-            enterBtn.classList.add('hidden');
-            connectBtn.classList.remove('hidden');
-            btnText.innerText = "Connect Pera Wallet";
-        }
+    function updateUI(address) {
+      addressText.innerText = address;
+      localStorage.setItem("walletAddress", address);
 
-        function setLoading(isLoading) {
-            if (isLoading) {
-                btnText.innerText = "Checking Pera...";
-                btnLoader.classList.remove('hidden');
-                connectBtn.disabled = true;
-                connectBtn.style.opacity = "0.7";
-            } else {
-                btnText.innerText = "Connect Pera Wallet";
-                btnLoader.classList.add('hidden');
-                connectBtn.disabled = false;
-                connectBtn.style.opacity = "1";
-            }
-        }
-    </script>
+      statusPanel.classList.remove("hidden");
+      connectBtn.classList.add("hidden");
+      enterBtn.classList.remove("hidden");
+    }
+
+    function handleDisconnect() {
+      localStorage.removeItem("walletAddress");
+      statusPanel.classList.add("hidden");
+      enterBtn.classList.add("hidden");
+      connectBtn.classList.remove("hidden");
+      btnText.innerText = "Connect Pera Wallet";
+    }
+
+    function setLoading(isLoading) {
+      if (isLoading) {
+        btnText.innerText = "Checking Pera...";
+        btnLoader.classList.remove("hidden");
+        connectBtn.disabled = true;
+        connectBtn.style.opacity = "0.7";
+      } else {
+        btnText.innerText = "Connect Pera Wallet";
+        btnLoader.classList.add("hidden");
+        connectBtn.disabled = false;
+        connectBtn.style.opacity = "1";
+      }
+    }
+  </script>
 </body>
 </html>
