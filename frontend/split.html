@@ -1,242 +1,167 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>AlgoTrust · Split the Bill</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="css/style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Split Bill | AlgoTrust</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://unpkg.com/algosdk@2.4.0/dist/browser/algosdk.min.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #F9FAFB; }
+    </style>
 </head>
-<body class="bg-[#EEF2FF] min-h-screen">
-  <div class="max-w-5xl mx-auto px-4 py-6">
-    <!-- Top bar -->
-    <header class="flex items-center justify-between mb-6">
-      <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-2xl bg-[#111827] flex items-center justify-center">
-          <span class="text-white text-[11px] font-semibold tracking-[0.14em]">AT</span>
-        </div>
-        <div>
-          <h1 class="text-xl font-semibold text-[#111827] tracking-tight">AlgoTrust</h1>
-          <p class="text-[11px] text-[#6B7280]">
-            University Governance on Algorand
-          </p>
-        </div>
-      </div>
-      <div class="flex items-center gap-2 text-[11px] text-[#6B7280]">
-        <a href="dashboard.html"
-           class="px-3 py-1 rounded-full bg-white shadow-sm hover:bg-[#F3F4F6]">
-          ← Back to dashboard
-        </a>
-        <span id="splitWalletShort" class="px-3 py-1 rounded-full bg-white shadow-sm">
-          Wallet: —
-        </span>
-        <span class="px-3 py-1 rounded-full bg-[#EEF2FF] text-[#4F46E5] font-medium">
-          Algorand Testnet
-        </span>
-      </div>
-    </header>
+<body class="min-h-screen pb-20">
 
-    <!-- Main layout -->
-    <main class="grid md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] gap-5 items-start">
-      <!-- Create / edit group -->
-      <section class="glass-card rounded-[28px] p-6">
-        <div class="flex items-center justify-between mb-4">
-          <div>
-            <h2 class="text-sm font-semibold text-[#111827]">Create expense group</h2>
-            <p class="text-[11px] text-[#9CA3AF]">
-              Add participants, total amount, and let AlgoTrust calculate the share.
-            </p>
-          </div>
-          <span class="text-[10px] px-2.5 py-1 rounded-full bg-[#F3F4F6] text-[#4B5563]">
-            Split the Bill
-          </span>
-        </div>
-
-        <form id="splitForm" class="space-y-4 text-[0.85rem]">
-          <div>
-            <label class="block text-[#4B5563] mb-1">Group name</label>
-            <input
-              type="text"
-              id="groupName"
-              class="input-ios"
-              placeholder="CS Department project, hostel dinner, club event..."
-            />
-          </div>
-
-          <div class="grid md:grid-cols-2 gap-3">
-            <div>
-              <label class="block text-[#4B5563] mb-1">Total amount (ALGO)</label>
-              <input
-                type="number"
-                id="totalAmount"
-                class="input-ios"
-                min="0"
-                step="0.01"
-                placeholder="0.00"
-              />
+    <!-- Header Navigation -->
+    <nav class="bg-white/80 backdrop-blur-md border-b border-slate-100 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <a href="dashboard.html" class="p-2 hover:bg-slate-100 rounded-full transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                </a>
+                <h1 class="text-xl font-bold text-slate-900">Expense Settlement</h1>
             </div>
-            <div>
-              <label class="block text-[#4B5563] mb-1">Optional note</label>
-              <input
-                type="text"
-                id="groupNote"
-                class="input-ios"
-                placeholder="Snacks after hackathon, trip, printing..."
-              />
+            <div id="wallet-pill" class="bg-emerald-50 px-4 py-2 rounded-full border border-emerald-100 text-emerald-600 text-sm font-mono font-bold">
+                Connecting...
             </div>
-          </div>
-
-          <div>
-            <label class="block text-[#4B5563] mb-1">Participants</label>
-            <p class="text-[11px] text-[#9CA3AF] mb-2">
-              Add Algorand addresses or campus wallet labels. Each line is one participant.
-            </p>
-            <textarea
-              id="participants"
-              rows="4"
-              class="input-ios"
-              placeholder="alice@campus · ALGO address&#10;bob@campus · ALGO address&#10;charlie@campus · ALGO address"
-            ></textarea>
-          </div>
-
-          <button
-            type="button"
-            id="calculateBtn"
-            class="btn-primary-ios bg-[#4F46E5] text-white hover:bg-[#4338CA]"
-          >
-            Calculate split
-          </button>
-        </form>
-
-        <!-- Error / info -->
-        <p id="splitError" class="mt-3 text-[0.8rem] text-[#DC2626] hidden"></p>
-      </section>
-
-      <!-- Result & settlement -->
-      <section class="glass-card rounded-[28px] p-6">
-        <div class="flex items-center justify-between mb-4">
-          <div>
-            <h2 class="text-sm font-semibold text-[#111827]">Per-person share</h2>
-            <p class="text-[11px] text-[#9CA3AF]">
-              Review the split and trigger settlement when ready.
-            </p>
-          </div>
-          <span class="text-[10px] px-2.5 py-1 rounded-full bg-[#F3F4F6] text-[#4B5563]">
-            Client-side calculation
-          </span>
         </div>
+    </nav>
 
-        <div id="summaryBox" class="mb-4 text-[0.8rem] text-[#4B5563] hidden">
-          <p>
-            Group <span id="summaryName" class="font-medium text-[#111827]"></span>,
-            <span id="summaryCount"></span> participants,
-            total <span id="summaryTotal"></span> ALGO.
-          </p>
-          <p class="mt-1 text-[0.75rem] text-[#9CA3AF]" id="summaryNote"></p>
+    <main class="max-w-5xl mx-auto px-6 mt-12">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            
+            <!-- Left Side: Input Form -->
+            <div class="space-y-8">
+                <div>
+                    <h2 class="text-3xl font-bold text-slate-900 mb-2">Split the Bill</h2>
+                    <p class="text-slate-500">Simplify campus life. Split club dues or house expenses and settle instantly with colleagues.</p>
+                </div>
+
+                <div class="glass-card bg-white p-8 rounded-[32px] border border-white space-y-6">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-tight">Group / Expense Name</label>
+                        <input type="text" id="group-name" placeholder="e.g. Student House Electricity" class="w-full">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-tight">Total Amount (ALGO)</label>
+                        <input type="number" id="total-amount" placeholder="0.00" class="w-full text-lg font-semibold text-indigo-600">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-tight">Participant Addresses (One per line)</label>
+                        <textarea id="participants-list" rows="5" placeholder="ADDRESS1...&#10;ADDRESS2..." class="w-full font-mono text-xs"></textarea>
+                        <p class="text-[11px] text-slate-400 mt-2">Maximum 15 participants allowed per settlement group.</p>
+                    </div>
+
+                    <button id="calculate-btn" class="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-slate-800 transition-all active:scale-[0.98]">
+                        Calculate Split
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right Side: Results & Settle -->
+            <div id="result-section" class="hidden space-y-6">
+                <div class="glass-card bg-white p-8 rounded-[32px] border border-white">
+                    <h3 class="text-xl font-bold text-slate-900 mb-6">Settlement Summary</h3>
+                    
+                    <div id="split-list" class="space-y-4 mb-8">
+                        <!-- Items injected by JS -->
+                    </div>
+
+                    <div class="pt-6 border-t border-slate-100 space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-500 font-medium">Per Person Share</span>
+                            <span id="share-display" class="text-xl font-extrabold text-slate-900">0.00 ALGO</span>
+                        </div>
+                        
+                        <button id="settle-btn" class="btn-primary-ios w-full py-4 bg-emerald-600 text-white shadow-lg shadow-emerald-100 hover:bg-emerald-700">
+                            Settle & Pay All
+                        </button>
+                        
+                        <p class="text-[10px] text-slate-400 text-center uppercase font-bold tracking-widest">
+                            Secure Atomic Group Transaction
+                        </p>
+                    </div>
+                </div>
+
+                <div class="p-6 bg-blue-50 rounded-[24px] border border-blue-100 flex items-start space-x-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p class="text-sm text-blue-700 leading-relaxed">
+                        Settling will create an <strong>Atomic Transfer</strong>. This ensures either all participants are paid simultaneously, or none are, preventing partial payments.
+                    </p>
+                </div>
+            </div>
+
         </div>
-
-        <div id="shareList" class="space-y-2 text-[0.8rem] max-h-64 overflow-auto">
-          <!-- Populated by JS -->
-        </div>
-
-        <button
-          type="button"
-          id="settleBtn"
-          class="btn-primary-ios bg-[#111827] text-white hover:bg-black mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
-          disabled
-        >
-          Settle on Algorand (coming soon)
-        </button>
-
-        <p class="mt-3 text-[0.75rem] text-[#9CA3AF] leading-relaxed">
-          In the full implementation, this button will create a grouped transaction
-          from your wallet to each participant, with one ALGO payment per person.
-          For now, use this view as a guide for manual Testnet transfers.
-        </p>
-      </section>
     </main>
 
-    <footer class="mt-8 text-[11px] text-[#9CA3AF] flex items-center justify-between">
-      <span>AlgoTrust · Split the Bill</span>
-      <span>Frontend prototype · Testnet only</span>
-    </footer>
-  </div>
+    <script type="module">
+        import { SplitModule } from './js/modules/split.js';
+        import { PeraWalletManager } from './js/wallet.js';
+        import { truncateAddress } from './js/algorand.js';
 
-  <script type="module">
-    const addr = localStorage.getItem('walletAddress');
-    if (addr) {
-      const short = addr.length > 8 ? `${addr.slice(0,4)}…${addr.slice(-4)}` : addr;
-      document.getElementById('splitWalletShort').textContent = `Wallet: ${short}`;
-    }
+        const peraManager = new PeraWalletManager();
+        const address = localStorage.getItem('walletAddress');
+        let currentParticipants = [];
+        let currentTotal = 0;
 
-    const calculateBtn = document.getElementById('calculateBtn');
-    const errorEl = document.getElementById('splitError');
-    const shareList = document.getElementById('shareList');
-    const summaryBox = document.getElementById('summaryBox');
-    const summaryName = document.getElementById('summaryName');
-    const summaryCount = document.getElementById('summaryCount');
-    const summaryTotal = document.getElementById('summaryTotal');
-    const summaryNote = document.getElementById('summaryNote');
-    const settleBtn = document.getElementById('settleBtn');
+        // Init UI
+        if (address) {
+            document.getElementById('wallet-pill').innerText = truncateAddress(address);
+        }
 
-    calculateBtn.onclick = () => {
-      errorEl.classList.add('hidden');
-      shareList.innerHTML = '';
-      summaryBox.classList.add('hidden');
-      settleBtn.disabled = true;
+        document.getElementById('calculate-btn').addEventListener('click', () => {
+            const total = parseFloat(document.getElementById('total-amount').value);
+            const listRaw = document.getElementById('participants-list').value;
+            
+            if (!total || total <= 0 || !listRaw) return alert("Please fill in all fields.");
 
-      const name = (document.getElementById('groupName').value || '').trim();
-      const total = parseFloat(document.getElementById('totalAmount').value);
-      const note = (document.getElementById('groupNote').value || '').trim();
-      const raw = document.getElementById('participants').value || '';
+            const splits = SplitModule.calculateSplits(total, listRaw);
+            currentParticipants = splits.map(s => s.address);
+            currentTotal = total;
 
-      const lines = raw
-        .split('\n')
-        .map(l => l.trim())
-        .filter(l => l.length > 0);
+            // Render Results
+            const listEl = document.getElementById('split-list');
+            listEl.innerHTML = '';
+            
+            splits.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'flex justify-between items-center p-3 bg-slate-50 rounded-xl border border-slate-100';
+                div.innerHTML = `
+                    <span class="text-xs font-mono text-slate-500">${truncateAddress(item.address)}</span>
+                    <span class="text-sm font-bold text-slate-900">${item.share} ALGO</span>
+                `;
+                listEl.appendChild(div);
+            });
 
-      if (!lines.length || isNaN(total) || total <= 0) {
-        errorEl.textContent = 'Enter a positive total amount and at least one participant.';
-        errorEl.classList.remove('hidden');
-        return;
-      }
+            document.getElementById('share-display').innerText = `${splits[0].share} ALGO`;
+            document.getElementById('result-section').classList.remove('hidden');
+        });
 
-      const perHead = total / lines.length;
+        document.getElementById('settle-btn').addEventListener('click', async () => {
+            const btn = document.getElementById('settle-btn');
+            btn.disabled = true;
+            btn.innerText = "Signing Group Tx...";
 
-      summaryName.textContent = name || 'Unnamed group';
-      summaryCount.textContent = `${lines.length}`;
-      summaryTotal.textContent = total.toFixed(2);
-      summaryNote.textContent = note ? note : '';
-      summaryBox.classList.remove('hidden');
-
-      lines.forEach((line, idx) => {
-        const row = document.createElement('div');
-        row.className =
-          'flex items-center justify-between rounded-[16px] bg-white border border-[#E5E7EB] px-3 py-2';
-
-        const label = document.createElement('div');
-        label.className = 'flex flex-col';
-        const title = document.createElement('span');
-        title.className = 'text-[0.8rem] text-[#111827]';
-        title.textContent = line;
-        const sub = document.createElement('span');
-        sub.className = 'text-[0.7rem] text-[#9CA3AF]';
-        sub.textContent = `Participant ${idx + 1}`;
-
-        label.appendChild(title);
-        label.appendChild(sub);
-
-        const amount = document.createElement('span');
-        amount.className = 'text-[0.8rem] font-medium text-[#111827]';
-        amount.textContent = `${perHead.toFixed(2)} ALGO`;
-
-        row.appendChild(label);
-        row.appendChild(amount);
-        shareList.appendChild(row);
-      });
-
-      settleBtn.disabled = false;
-    };
-  </script>
+            try {
+                await SplitModule.settleExpenses(address, currentTotal, currentParticipants, peraManager);
+                alert("Settlement Successful! All participants paid.");
+                window.location.href = 'dashboard.html';
+            } catch (err) {
+                console.error(err);
+                alert("Settlement failed. Check balance or wallet connection.");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Settle & Pay All";
+            }
+        });
+    </script>
 </body>
 </html>

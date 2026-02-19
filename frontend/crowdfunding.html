@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crowdfunding | AlgoTrust</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://unpkg.com/algosdk@2.4.0/dist/browser/algosdk.min.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #F9FAFB; }
+    </style>
+</head>
+<body class="min-h-screen pb-20">
+
+    
+    <nav class="bg-white/80 backdrop-blur-md border-b border-slate-100 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <a href="dashboard.html" class="p-2 hover:bg-slate-100 rounded-full transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                </a>
+                <h1 class="text-xl font-bold text-slate-900">Campus Crowdfunding</h1>
+            </div>
+            <div id="wallet-pill" class="bg-indigo-50 px-4 py-2 rounded-full border border-indigo-100 text-indigo-600 text-sm font-mono font-bold">
+                Connecting...
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-4xl mx-auto px-6 mt-12">
+        
+        <div class="mb-12">
+            <h2 class="text-3xl font-bold text-slate-900 mb-4">Support Local Initiatives</h2>
+            <p class="text-slate-500 text-lg">Directly fund student clubs, lab equipment, and campus events through secure on-chain contributions.</p>
+        </div>
+
+        
+        <div id="campaign-container" class="space-y-8">
+            <div class="glass-card bg-white p-10 rounded-[40px] border border-white relative overflow-hidden">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                    <div>
+                        <span class="badge-chip bg-green-100 text-green-600 mb-3 inline-block">Active Campaign</span>
+                        <h3 id="campaign-title" class="text-2xl font-bold text-slate-900">New Library Study Pods</h3>
+                        <p class="text-slate-500 mt-2">Fundraising for soundproof pods in the North Wing Library.</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm font-medium text-slate-400">Target Goal</p>
+                        <p id="goal-amount" class="text-2xl font-extrabold text-indigo-600">-- ALGO</p>
+                    </div>
+                </div>
+
+                
+                <div class="mb-8">
+                    <div class="flex justify-between text-sm mb-2">
+                        <span class="font-bold text-slate-700">Progress: <span id="raised-percentage">0</span>%</span>
+                        <span id="raised-amount" class="text-slate-500">0 / 0 ALGO</span>
+                    </div>
+                    <div class="progress-container">
+                        <div id="progress-bar-fill" class="progress-bar bg-indigo-600" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                
+                <div class="bg-slate-50 p-6 rounded-[24px] border border-slate-100">
+                    <label class="block text-sm font-bold text-slate-700 mb-3 uppercase tracking-tight">Your Contribution (ALGO)</label>
+                    <div class="flex flex-col md:flex-row gap-4">
+                        <input type="number" id="contribution-amount" placeholder="e.g. 10" class="flex-1 text-lg font-semibold">
+                        <button id="contribute-btn" class="btn-primary-ios bg-indigo-600 text-white px-10 py-4 hover:bg-indigo-700 shadow-lg shadow-indigo-200">
+                            Confirm Contribution
+                        </button>
+                    </div>
+                    <p class="text-[11px] text-slate-400 mt-4 text-center">
+                        Note: Contributions are sent via an atomic group transaction including a payment and an app call.
+                    </p>
+                </div>
+
+                
+                <div id="admin-actions" class="hidden mt-8 pt-8 border-t border-slate-100">
+                    <button id="withdraw-btn" class="w-full py-4 border-2 border-dashed border-indigo-200 rounded-2xl text-indigo-600 font-bold hover:bg-indigo-50 transition-colors">
+                        Goal Met: Withdraw Funds to Student Union
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        
+        <div id="no-campaign" class="hidden text-center py-20">
+            <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <h3 class="text-xl font-bold text-slate-800">No active campaigns</h3>
+            <p class="text-slate-500">Check back later for new student initiatives.</p>
+        </div>
+    </main>
+
+    <script type="module">
+        import { CrowdfundingModule } from './js/modules/crowdfunding.js';
+        import { PeraWalletManager } from './js/wallet.js';
+        import { truncateAddress } from './js/algorand.js';
+
+        const peraManager = new PeraWalletManager();
+        const address = localStorage.getItem('walletAddress');
+
+        async function updateCampaignUI() {
+            if (!address) return;
+            document.getElementById('wallet-pill').innerText = truncateAddress(address);
+
+            const data = await CrowdfundingModule.fetchCampaignInfo();
+            if (data && data.active) {
+                const percentage = Math.min((data.raised / data.goal) * 100, 100).toFixed(1);
+                
+                document.getElementById('goal-amount').innerText = `${data.goal} ALGO`;
+                document.getElementById('raised-amount').innerText = `${data.raised} / ${data.goal} ALGO`;
+                document.getElementById('raised-percentage').innerText = percentage;
+                document.getElementById('progress-bar-fill').style.width = `${percentage}%`;
+
+                
+                if (data.raised >= data.goal) {
+                    document.getElementById('admin-actions').classList.remove('hidden');
+                }
+            } else {
+                document.getElementById('campaign-container').classList.add('hidden');
+                document.getElementById('no-campaign').classList.remove('hidden');
+            }
+        }
+
+        document.getElementById('contribute-btn').addEventListener('click', async () => {
+            const amount = document.getElementById('contribution-amount').value;
+            if (!amount || amount <= 0) return alert("Enter a valid amount");
+
+            const btn = document.getElementById('contribute-btn');
+            btn.disabled = true;
+            btn.innerText = "Processing...";
+
+            try {
+                await CrowdfundingModule.contribute(address, amount, peraManager);
+                alert("Contribution successful!");
+                window.location.reload();
+            } catch (err) {
+                console.error(err);
+                alert("Transaction failed. See console.");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Confirm Contribution";
+            }
+        });
+
+        updateCampaignUI();
+    </script>
+</body>
+</html>

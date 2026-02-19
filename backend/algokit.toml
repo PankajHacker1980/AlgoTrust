@@ -1,0 +1,28 @@
+[algokit]
+min_version = "v2.0.0"
+
+[project]
+name = "algotrust"
+type = "contract"
+
+[deploy]
+# Custom deployment script as requested for RIFT Hackathon
+command = "python deploy.py"
+
+[generate.client]
+# Generating a client for the frontend to reference (useful for ABI methods)
+language = "typescript"
+path = "../frontend/js/client"
+
+[generate.contract]
+path = "smart_contract"
+
+[localnet]
+# Standard Algorand LocalNet configuration for development/testing
+image_registry = "docker.io"
+name = "algotrust_localnet"
+
+[testnet]
+# Explicitly defining Testnet target as per hackathon requirements
+node_url = "https://testnet-api.algonode.cloud"
+indexer_url = "https://testnet-idx.algonode.cloud"

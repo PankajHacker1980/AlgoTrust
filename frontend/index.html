@@ -1,126 +1,184 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>AlgoTrust · Verify with Algorand</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="css/style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlgoTrust | University Governance</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Algorand SDK -->
+    <script src="https://unpkg.com/algosdk@2.4.0/dist/browser/algosdk.min.js"></script>
+    
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; 
+            /* Light Warm Orange Background */
+            background-color: #fffaf5; 
+            background-image: 
+                radial-gradient(at 0% 0%, #fff7ed 0px, transparent 50%),
+                radial-gradient(at 100% 100%, #ffedd5 0px, transparent 50%);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            /* Little Black Boundary as requested */
+            border: 1px solid rgba(0, 0, 0, 0.12);
+            /* Deep Heavy Shadow with Orange tint */
+            box-shadow: 0 40px 100px -20px rgba(234, 88, 12, 0.15), 0 20px 40px -15px rgba(0, 0, 0, 0.1);
+            border-radius: 40px;
+        }
+
+        .orange-btn {
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .orange-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px -5px rgba(234, 88, 12, 0.3);
+        }
+
+        .orange-btn:active {
+            transform: scale(0.96);
+        }
+
+        .stat-badge {
+            background: rgba(251, 146, 60, 0.1);
+            color: #ea580c;
+            border: 1px solid rgba(251, 146, 60, 0.2);
+        }
+    </style>
 </head>
-<body class="min-h-screen flex items-center justify-center bg-[#EEF2FF]">
-  <div class="max-w-4xl w-full px-4">
-    <div class="w-full rounded-[32px] bg-white shadow-[0_22px_60px_rgba(15,23,42,0.12)] overflow-hidden grid md:grid-cols-2">
-      <!-- Left panel -->
-      <div class="relative bg-gradient-to-br from-[#E0ECFF] via-[#D9F3FF] to-[#F8FBFF] p-8 flex flex-col justify-between">
-        <div>
-          <p class="text-[11px] font-medium text-[#4B5563] tracking-[0.16em] uppercase">
-            Algorand · Campus
-          </p>
-          <h1 class="mt-4 text-2xl font-semibold text-[#111827] leading-snug">
-            AlgoTrust for<br />
-            modern universities
-          </h1>
-          <p class="mt-3 text-[0.9rem] text-[#4B5563] max-w-xs">
-            Secure student voting, transparent crowdfunding and effortless
-            expense settlement — verified on Algorand Testnet.
-          </p>
-        </div>
+<body class="min-h-screen flex items-center justify-center p-6 md:p-12">
 
-        <div class="mt-8">
-          <div class="w-full aspect-[4/3] rounded-[24px] bg-gradient-to-tr from-[#4F46E5] via-[#6366F1] to-[#38BDF8] shadow-lg relative overflow-hidden">
-            <div class="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top,_white,_transparent_55%)]"></div>
-            <div class="absolute bottom-6 left-6 text-white">
-              <p class="text-[11px] uppercase tracking-[0.18em]">University Network</p>
-              <p class="text-sm font-medium mt-1">Verified campus identity</p>
+    <div class="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        
+        <!-- Left Side: Branding -->
+        <div class="space-y-10 lg:pr-10">
+            <div class="inline-flex items-center space-x-3 bg-white px-5 py-2 rounded-full border border-orange-100 shadow-sm">
+                <span class="flex h-2.5 w-2.5 rounded-full bg-orange-500 animate-pulse"></span>
+                <span class="text-xs font-bold tracking-widest text-orange-600 uppercase">RIFT 2026 Hackathon</span>
             </div>
-            <div class="absolute -bottom-10 right-4 w-32 h-32 rounded-full bg-white/20 blur-2xl"></div>
-            <div class="absolute top-6 right-6 flex flex-col items-end gap-1 text-[10px] text-white/90">
-              <span class="px-2 py-1 rounded-full bg-white/15 backdrop-blur-sm">
-                Student voting
-              </span>
-              <span class="px-2 py-1 rounded-full bg-white/15 backdrop-blur-sm">
-                Crowdfunding
-              </span>
-              <span class="px-2 py-1 rounded-full bg-white/15 backdrop-blur-sm">
-                Split expenses
-              </span>
+            
+            <div class="space-y-6">
+                <h1 class="text-7xl font-extrabold text-stone-900 tracking-tighter leading-[1.05]">
+                    Campus <br/>
+                    <span class="text-orange-600">Governance.</span>
+                </h1>
+                
+                <p class="text-xl text-stone-500 leading-relaxed max-w-lg">
+                    A decentralized hub for students to vote on proposals, fund campus initiatives, and settle club expenses—securely on Algorand.
+                </p>
             </div>
-          </div>
-          <p class="mt-3 text-[0.75rem] text-[#6B7280]">
-            Connect a Testnet-funded wallet with Pera Wallet to explore AlgoTrust features.
-          </p>
-        </div>
-      </div>
 
-      <!-- Right panel -->
-      <div class="p-8 sm:p-9 flex flex-col justify-center bg-white">
-        <div class="flex items-center justify-between mb-6">
-          <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-2xl bg-[#111827] flex items-center justify-center">
-              <span class="text-white text-[11px] font-semibold tracking-[0.14em]">AT</span>
+            <div class="flex items-center space-x-6 pt-4">
+                <div class="flex -space-x-3">
+                    <div class="h-12 w-12 rounded-full border-4 border-[#fffaf5] bg-orange-100 flex items-center justify-center text-orange-600 font-bold">V</div>
+                    <div class="h-12 w-12 rounded-full border-4 border-[#fffaf5] bg-orange-200 flex items-center justify-center text-orange-700 font-bold">C</div>
+                    <div class="h-12 w-12 rounded-full border-4 border-[#fffaf5] bg-orange-300 flex items-center justify-center text-orange-800 font-bold">S</div>
+                </div>
+                <p class="text-sm font-semibold text-stone-400 uppercase tracking-widest">Secured by Pera Wallet</p>
             </div>
-            <div>
-              <p class="text-[11px] text-[#9CA3AF]">Welcome to</p>
-              <h2 class="text-lg font-semibold text-[#111827]">AlgoTrust Portal</h2>
+        </div>
+
+        <!-- Right Side: Login Card -->
+        <div class="glass-card p-10 md:p-14 relative overflow-hidden">
+            <div class="relative z-10">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold text-stone-800">Student Portal</h2>
+                    <p class="text-stone-500 mt-2">Connect your wallet to access the hub</p>
+                </div>
+
+                <!-- Wallet Info Area -->
+                <div id="wallet-status" class="hidden mb-10 p-6 bg-orange-50/50 rounded-3xl border border-orange-200/40 transition-all duration-500">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-[10px] font-bold text-orange-500 uppercase tracking-widest">Authenticated Account</span>
+                        <span class="h-2 w-2 rounded-full bg-green-500"></span>
+                    </div>
+                    <p id="account-address" class="text-sm font-mono text-stone-700 truncate font-semibold">--</p>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="space-y-5">
+                    <button id="connect-btn" class="orange-btn w-full py-5 text-white font-bold rounded-[24px] flex items-center justify-center space-x-3 text-lg shadow-lg shadow-orange-200/50">
+                        <img src="https://perawallet.app/static/images/logos/pera-logo-white.svg" class="h-6 w-6" alt="">
+                        <span>Connect Pera Wallet</span>
+                    </button>
+
+                    <a id="enter-dashboard" href="dashboard.html" class="hidden w-full py-5 bg-stone-900 text-white rounded-[24px] font-bold text-center block text-lg transition-all hover:bg-stone-800 hover:shadow-xl active:scale-95">
+                        Enter Dashboard
+                    </a>
+                </div>
+
+                <div class="mt-14 pt-8 border-t border-stone-100 flex justify-between items-center opacity-40">
+                    <div class="flex items-center space-x-2">
+                        <div class="h-2 w-2 bg-stone-400 rounded-full"></div>
+                        <span class="text-[10px] font-bold tracking-widest uppercase">Testnet Node v2.4</span>
+                    </div>
+                    <span class="text-[10px] font-bold tracking-widest uppercase">AlgoTrust ID: 123...</span>
+                </div>
             </div>
-          </div>
-          <span class="text-[10px] px-2.5 py-1 rounded-full bg-[#EEF2FF] text-[#4F46E5] font-medium">
-            Algorand Testnet
-          </span>
+            
+            <!-- Soft ambient light -->
+            <div class="absolute -top-24 -right-24 w-64 h-64 bg-orange-100/50 rounded-full blur-[80px]"></div>
         </div>
-
-        <p class="text-[0.88rem] text-[#6B7280] mb-5">
-          Use your Algorand wallet as a campus ID. Once verified, you can access
-          governance, crowdfunding, and expense tools built for universities.
-        </p>
-
-        <div class="mb-4 space-y-2 text-[0.78rem]">
-          <div class="flex items-center justify-between">
-            <span class="text-[#6B7280]">Wallet</span>
-            <span id="loginWalletShort"
-                  class="px-2.5 py-1 rounded-full bg-[#F3F4F6] text-[#374151]">
-              not connected
-            </span>
-          </div>
-          <div class="flex items-center justify-between">
-            <span class="text-[#6B7280]">Network</span>
-            <span class="px-2.5 py-1 rounded-full bg-[#EEF2FF] text-[#4F46E5]">
-              Algorand Testnet
-            </span>
-          </div>
-        </div>
-
-        <button
-          id="verifyBtn"
-          class="w-full h-11 mt-1 rounded-[999px] bg-[#4F46E5] text-white text-[0.9rem] font-semibold flex items-center justify-center gap-2 hover:bg-[#4338CA] transition"
-        >
-          <span>Verify with Algorand</span>
-        </button>
-
-        <p class="mt-4 text-[0.75rem] text-[#9CA3AF] leading-relaxed">
-          Verification is performed via a signed transaction in Pera Wallet.
-          Your keys never leave your device; AlgoTrust only stores your address.
-        </p>
-
-        <div class="mt-5 border-t border-[#E5E7EB] pt-3 text-[0.75rem] text-[#9CA3AF] flex items-center justify-between">
-          <span>Designed for colleges, student unions and clubs.</span>
-          <span class="hidden sm:inline">v0.1 · Frontend prototype</span>
-        </div>
-      </div>
     </div>
-  </div>
 
-  <script type="module">
-    const btn = document.getElementById('verifyBtn');
-    const label = document.getElementById('loginWalletShort');
+    <!-- Scripting -->
+    <script type="module">
+        import { PeraWalletManager } from './js/wallet.js';
 
-    btn.onclick = () => {
-      const fake = 'TEST-ALGO-ADDR-123456';
-      localStorage.setItem('walletAddress', fake);
-      const short = fake.length > 8 ? `${fake.slice(0,4)}…${fake.slice(-4)}` : fake;
-      label.textContent = short;
-      window.location.href = 'dashboard.html';
-    };
-  </script>
+        const connectBtn = document.getElementById('connect-btn');
+        const connectBtnText = connectBtn.querySelector('span');
+        const enterBtn = document.getElementById('enter-dashboard');
+        const statusPanel = document.getElementById('wallet-status');
+        const addressText = document.getElementById('account-address');
+
+        const peraManager = new PeraWalletManager();
+
+        // 1. Check session on load
+        window.addEventListener('load', async () => {
+            const savedAddr = localStorage.getItem('walletAddress');
+            if (savedAddr) {
+                const address = await peraManager.reconnect();
+                if (address) updateUI(address);
+            }
+        });
+
+        // 2. Connect Button Interaction
+        connectBtn.addEventListener('click', async () => {
+            // Visual feedback that button was clicked
+            connectBtnText.innerText = "Opening Pera...";
+            connectBtn.style.opacity = "0.8";
+
+            try {
+                const accounts = await peraManager.connect();
+                if (accounts && accounts.length > 0) {
+                    updateUI(accounts[0]);
+                }
+            } catch (err) {
+                console.error("Connection error:", err);
+                // Reset text if user cancels
+                connectBtnText.innerText = "Connect Pera Wallet";
+                connectBtn.style.opacity = "1";
+                if (err?.data?.type !== "CONNECT_MODAL_CLOSED") {
+                    alert("Connection failed. Please refresh and try again.");
+                }
+            }
+        });
+
+        function updateUI(address) {
+            addressText.innerText = address;
+            statusPanel.classList.remove('hidden');
+            statusPanel.classList.add('animate-pulse'); // Soft entry effect
+            setTimeout(() => statusPanel.classList.remove('animate-pulse'), 1000);
+            
+            connectBtn.classList.add('hidden');
+            enterBtn.classList.remove('hidden');
+        }
+    </script>
 </body>
 </html>

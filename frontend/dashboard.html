@@ -1,168 +1,220 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>AlgoTrust · Dashboard</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="css/style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | AlgoTrust</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://unpkg.com/algosdk@2.4.0/dist/browser/algosdk.min.js"></script>
+    
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #fffaf5; 
+            background-image: 
+                radial-gradient(at 0% 0%, #fff7ed 0px, transparent 50%),
+                radial-gradient(at 100% 100%, #ffedd5 0px, transparent 50%);
+        }
+
+        .nav-glass {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            /* Subtle black boundary as requested */
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            /* Deep soft shadow */
+            box-shadow: 0 20px 40px -10px rgba(234, 88, 12, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 30px 60px -12px rgba(234, 88, 12, 0.15);
+            border-color: rgba(0, 0, 0, 0.15);
+        }
+
+        .orange-gradient-pill {
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+        }
+
+        .stat-badge {
+            background: white;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+        }
+    </style>
 </head>
-<body class="bg-[#EEF2FF] min-h-screen">
-  <div class="max-w-6xl mx-auto px-4 py-6">
-    <!-- Top bar -->
-    <header class="flex items-center justify-between mb-6">
-      <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-2xl bg-[#111827] flex items-center justify-center">
-          <span class="text-white text-[11px] font-semibold tracking-[0.14em]">AT</span>
-        </div>
-        <div>
-          <h1 class="text-xl font-semibold text-[#111827] tracking-tight">AlgoTrust</h1>
-          <p class="text-[11px] text-[#6B7280]">
-            University Governance on Algorand
-          </p>
-        </div>
-      </div>
-      <div class="flex items-center gap-2 text-[11px] text-[#6B7280]">
-        <span id="dashWalletShort" class="px-3 py-1 rounded-full bg-white shadow-sm">
-          Wallet: —
-        </span>
-        <span id="dashAlgoBalance" class="px-3 py-1 rounded-full bg-white shadow-sm">
-          0 ALGO
-        </span>
-        <span class="px-3 py-1 rounded-full bg-[#EEF2FF] text-[#4F46E5] font-medium">
-          Algorand Testnet
-        </span>
-      </div>
-    </header>
+<body class="min-h-screen pb-20">
 
-    <!-- Overview -->
-    <section class="glass-card rounded-[28px] p-6 mb-6">
-      <div class="flex items-center justify-between mb-4">
-        <div>
-          <h2 class="text-sm font-semibold text-[#111827]">Overview</h2>
-          <p class="text-[11px] text-[#9CA3AF]">
-            Snapshot of on-chain activity for your campus.
-          </p>
-        </div>
-        <span class="text-[10px] px-2.5 py-1 rounded-full bg-[#F3F4F6] text-[#4B5563]">
-          App ID: <span id="appId">123456</span>
-        </span>
-      </div>
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-        <div class="stat-tile">
-          <span class="text-[#6B7280]">Active Proposals</span>
-          <span id="statProposals" class="text-lg font-semibold text-[#111827] block mt-1">0</span>
-        </div>
-        <div class="stat-tile">
-          <span class="text-[#6B7280]">Funds Raised</span>
-          <span id="statFunds" class="text-lg font-semibold text-[#111827] block mt-1">0 ALGO</span>
-        </div>
-        <div class="stat-tile">
-          <span class="text-[#6B7280]">Campaigns</span>
-          <span id="statCampaigns" class="text-lg font-semibold text-[#111827] block mt-1">0</span>
-        </div>
-        <div class="stat-tile">
-          <span class="text-[#6B7280]">On-chain Txns</span>
-          <span id="statTxns" class="text-lg font-semibold text-[#111827] block mt-1">0</span>
-        </div>
-      </div>
-    </section>
+    <!-- Top Navigation -->
+    <nav class="sticky top-0 z-50 nav-glass">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <div class="w-10 h-10 orange-gradient-pill rounded-xl flex items-center justify-center shadow-lg shadow-orange-200">
+                    <span class="text-white font-bold text-xl">AT</span>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-stone-900 leading-none">AlgoTrust</h1>
+                    <p class="text-[10px] text-orange-500 font-bold uppercase tracking-widest">University Governance</p>
+                </div>
+            </div>
 
-    <!-- Feature cards -->
-    <section class="grid md:grid-cols-3 gap-4">
-      <!-- Voting -->
-      <a href="voting.html"
-         class="relative rounded-[24px] overflow-hidden bg-white shadow-[0_18px_40px_rgba(15,23,42,0.08)] group">
-        <div class="h-28 bg-gradient-to-tr from-[#4F46E5] via-[#6366F1] to-[#38BDF8]"></div>
-        <div class="p-4">
-          <p class="text-[11px] text-[#6B7280] mb-1">🗳 Voting</p>
-          <h3 class="text-sm font-semibold text-[#111827]">
-            On-Chain Governance
-          </h3>
-          <p class="mt-1 text-[0.8rem] text-[#6B7280]">
-            Create proposals and record student votes directly on Algorand.
-          </p>
+            <div class="flex items-center space-x-4">
+                <div class="hidden md:block text-right">
+                    <p id="user-address" class="text-xs font-mono text-stone-500 font-bold tracking-tighter">Connecting...</p>
+                    <p id="user-balance" class="text-sm font-black text-orange-600">0.00 ALGO</p>
+                </div>
+                <button id="disconnect-btn" class="p-2.5 bg-stone-100 hover:bg-orange-100 rounded-full transition-colors text-stone-400 hover:text-orange-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                </button>
+            </div>
         </div>
-      </a>
+    </nav>
 
-      <!-- Crowdfunding -->
-      <a href="crowdfunding.html"
-         class="relative rounded-[24px] overflow-hidden bg-white shadow-[0_18px_40px_rgba(15,23,42,0.08)] group">
-        <div class="h-28 bg-gradient-to-tr from-[#22C55E] via-[#4ADE80] to-[#A7F3D0]"></div>
-        <div class="p-4">
-          <p class="text-[11px] text-[#6B7280] mb-1">💰 Crowdfunding</p>
-          <h3 class="text-sm font-semibold text-[#111827]">
-            Decentralized Campaigns
-          </h3>
-          <p class="mt-1 text-[0.8rem] text-[#6B7280]">
-            Raise and manage funds for campus initiatives with transparent escrows.
-          </p>
+    <main class="max-w-7xl mx-auto px-6 mt-12">
+        
+        <!-- Welcome Header -->
+        <header class="mb-12">
+            <h2 class="text-4xl font-extrabold text-stone-900 tracking-tight">Welcome, <span class="text-orange-500">Student</span></h2>
+            <p class="text-stone-500 text-lg mt-2 font-medium">Empowering campus life through decentralized action.</p>
+        </header>
+
+        <!-- Dynamic Stat Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+            <div class="stat-badge p-7 rounded-[32px]">
+                <p class="text-xs font-bold text-stone-400 uppercase tracking-widest mb-2">Active Proposals</p>
+                <h3 class="text-3xl font-black text-stone-800" id="stat-proposals">--</h3>
+            </div>
+            <div class="stat-badge p-7 rounded-[32px]">
+                <p class="text-xs font-bold text-stone-400 uppercase tracking-widest mb-2">Live Campaigns</p>
+                <h3 class="text-3xl font-black text-stone-800" id="stat-campaigns">--</h3>
+            </div>
+            <div class="stat-badge p-7 rounded-[32px]">
+                <p class="text-xs font-bold text-stone-400 uppercase tracking-widest mb-2">My Total Votes</p>
+                <h3 class="text-3xl font-black text-stone-800" id="stat-votes">--</h3>
+            </div>
+            <div class="orange-gradient-pill p-7 rounded-[32px] shadow-xl shadow-orange-200">
+                <p class="text-xs font-bold text-orange-100 uppercase tracking-widest mb-2">Total Raised</p>
+                <h3 class="text-3xl font-black text-white" id="stat-raised">-- ALGO</h3>
+            </div>
         </div>
-      </a>
 
-      <!-- Split -->
-      <a href="split.html"
-         class="relative rounded-[24px] overflow-hidden bg-white shadow-[0_18px_40px_rgba(15,23,42,0.08)] group">
-        <div class="h-28 bg-gradient-to-tr from-[#0EA5E9] via-[#38BDF8] to-[#BFDBFE]"></div>
-        <div class="p-4">
-          <p class="text-[11px] text-[#6B7280] mb-1">🧾 Split the Bill</p>
-          <h3 class="text-sm font-semibold text-[#111827]">
-            Expense Settlement
-          </h3>
-          <p class="mt-1 text-[0.8rem] text-[#6B7280]">
-            Share costs across participants and settle instantly on-chain.
-          </p>
+        <!-- Module Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Voting Module -->
+            <a href="voting.html" class="glass-card p-10 rounded-[40px] group">
+                <div class="w-16 h-16 bg-orange-100 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-orange-600 transition-all duration-500 shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-orange-600 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <h3 class="text-2xl font-bold text-stone-800 mb-3">Campus Voting</h3>
+                <p class="text-stone-500 leading-relaxed mb-8">Participate in academic policy and student union decisions with verifiable on-chain transparency.</p>
+                <div class="flex items-center text-orange-600 font-bold text-sm">
+                    Enter Governance <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                </div>
+            </a>
+
+            <!-- Crowdfunding Module -->
+            <a href="crowdfunding.html" class="glass-card p-10 rounded-[40px] group">
+                <div class="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-amber-500 transition-all duration-500 shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-amber-600 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <h3 class="text-2xl font-bold text-stone-800 mb-3">Crowdfunding</h3>
+                <p class="text-stone-500 leading-relaxed mb-8">Launch and support campus clubs or charitable initiatives using micro-payments.</p>
+                <div class="flex items-center text-amber-600 font-bold text-sm">
+                    View Campaigns <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                </div>
+            </a>
+
+            <!-- Expense Splitter Module -->
+            <a href="split.html" class="glass-card p-10 rounded-[40px] group">
+                <div class="w-16 h-16 bg-stone-800 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-black transition-all duration-500 shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                </div>
+                <h3 class="text-2xl font-bold text-stone-800 mb-3">Expense Splitter</h3>
+                <p class="text-stone-500 leading-relaxed mb-8">Coordinate club dues and shared expenses with colleagues via atomic transfers.</p>
+                <div class="flex items-center text-stone-800 font-bold text-sm">
+                    Settle Bills <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                </div>
+            </a>
         </div>
-      </a>
-    </section>
 
-    <!-- Lower row: quick links / admin -->
-    <section class="mt-6 grid md:grid-cols-2 gap-4">
-      <div class="glass-card rounded-[24px] p-4">
-        <h3 class="text-sm font-semibold text-[#111827] mb-2">Quick links</h3>
-        <div class="flex flex-wrap gap-2 text-[0.8rem]">
-          <a href="voting.html" class="badge-chip bg-[#F3F4F6] text-[#4B5563]">Go to Voting</a>
-          <a href="crowdfunding.html" class="badge-chip bg-[#F3F4F6] text-[#4B5563]">Go to Crowdfunding</a>
-          <a href="split.html" class="badge-chip bg-[#F3F4F6] text-[#4B5563]">Go to Split Bill</a>
-        </div>
-      </div>
+        <!-- Footer -->
+        <footer class="mt-20 pt-10 border-t border-orange-100 flex flex-col md:flex-row justify-between items-center text-xs text-stone-400 gap-6">
+            <div class="flex items-center space-x-6">
+                <span class="bg-white px-4 py-2 rounded-full border border-stone-100 text-stone-600 font-bold">App ID: <span id="app-id-display" class="text-orange-500">...</span></span>
+                <span class="flex items-center space-x-2">
+                    <div class="h-2 w-2 rounded-full bg-green-500"></div>
+                    <span class="font-bold tracking-widest uppercase">Testnet Synchronized</span>
+                </span>
+            </div>
+            <div class="flex space-x-8 font-bold uppercase tracking-widest">
+                <a href="#" class="hover:text-orange-500 transition-colors">Explorer</a>
+                <a href="#" class="hover:text-orange-500 transition-colors">Docs</a>
+                <a href="admin.html" class="text-stone-800 hover:text-orange-500 transition-colors">Admin</a>
+            </div>
+        </footer>
+    </main>
 
-      <div class="glass-card rounded-[24px] p-4">
-        <h3 class="text-sm font-semibold text-[#111827] mb-2">Admin & Explorer</h3>
-        <p class="text-[0.8rem] text-[#6B7280] mb-2">
-          View the AlgoTrust smart contract on Algorand Testnet or open the admin tools.
-        </p>
-        <div class="flex flex-wrap gap-2 text-[0.8rem]">
-          <a href="admin.html" class="badge-chip bg-[#EEF2FF] text-[#4F46E5]">
-            Admin Panel
-          </a>
-          <a id="explorerLink"
-             href="https://testnet.algoexplorer.io/application/123456"
-             target="_blank"
-             class="badge-chip bg-[#F3F4F6] text-[#4B5563]">
-            Open in Explorer
-          </a>
-        </div>
-      </div>
-    </section>
+    <script type="module">
+        import { APP_ID, algodClient } from './js/algorand.js';
+        import { PeraWalletManager } from './js/wallet.js';
 
-    <footer class="mt-8 text-[11px] text-[#9CA3AF] flex items-center justify-between">
-      <span>AlgoTrust · University Governance on Algorand</span>
-      <span>Frontend prototype · Testnet only</span>
-    </footer>
-  </div>
+        const addressDisplay = document.getElementById('user-address');
+        const balanceDisplay = document.getElementById('user-balance');
+        const appIdDisplay = document.getElementById('app-id-display');
+        const disconnectBtn = document.getElementById('disconnect-btn');
 
-  <script type="module">
-    const addr = localStorage.getItem('walletAddress');
-    if (addr) {
-      const short = addr.length > 8 ? `${addr.slice(0,4)}…${addr.slice(-4)}` : addr;
-      document.getElementById('dashWalletShort').textContent = `Wallet: ${short}`;
-    }
+        const peraManager = new PeraWalletManager();
 
-    const APP_ID = 123456; // replace after smart contract deploy
-    document.getElementById('appId').textContent = APP_ID.toString();
-    document.getElementById('explorerLink').href =
-      `https://testnet.algoexplorer.io/application/${APP_ID}`;
-  </script>
+        async function initDashboard() {
+            const address = localStorage.getItem('walletAddress');
+            if (!address) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            appIdDisplay.innerText = APP_ID;
+            addressDisplay.innerText = address; // Full address for mono look or shorten: address.substring(0,8) + '...'
+
+            // Fetch Real-time Balance from Algorand
+            try {
+                const accountInfo = await algodClient.accountInformation(address).do();
+                const algoBalance = accountInfo.amount / 1_000_000;
+                balanceDisplay.innerText = `${algoBalance.toFixed(2)} ALGO`;
+            } catch (err) {
+                console.error("Balance fetch failed", err);
+                balanceDisplay.innerText = "Check Connection";
+            }
+
+            // Mock Stats for Hackathon Presentation 
+            // (In prod, fetch these from Application Global State via Indexer)
+            document.getElementById('stat-proposals').innerText = "3";
+            document.getElementById('stat-campaigns').innerText = "2";
+            document.getElementById('stat-votes').innerText = "1";
+            document.getElementById('stat-raised').innerText = "1,240";
+        }
+
+        disconnectBtn.addEventListener('click', () => {
+            peraManager.disconnect();
+        });
+
+        initDashboard();
+    </script>
 </body>
 </html>
