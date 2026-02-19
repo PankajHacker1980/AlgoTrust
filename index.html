@@ -208,7 +208,7 @@
   </div>
 
   <script>
-    // Global variable for PeraWallet instance
+    // Global PeraWallet instance
     let peraWallet = null;
 
     // DOM elements
@@ -220,7 +220,7 @@
     const statusPanel = document.getElementById("wallet-status");
     const addressText = document.getElementById("account-address");
 
-    // Helper: get constructor from UMD bundle
+    // Get constructor from UMD bundle
     function getPeraCtor() {
       if (
         window.PeraWalletConnect &&
@@ -240,17 +240,15 @@
 
     // Initialize PeraWallet and attempt to reconnect on page load
     window.addEventListener("load", () => {
-      console.log("window.PeraWalletConnect =", window.PeraWalletConnect);
-
       const PeraCtor = getPeraCtor();
 
       if (!PeraCtor) {
         console.error(
-          "Pera Wallet SDK global not found. window.PeraWalletConnect dump:",
+          "Pera Wallet SDK global not found. window.PeraWalletConnect =",
           window.PeraWalletConnect
         );
         alert(
-          "Pera Wallet SDK could not be initialized. Open DevTools → Console and check window.PeraWalletConnect."
+          "Pera Wallet SDK could not be initialized. Check DevTools → Console."
         );
         return;
       }
@@ -264,7 +262,6 @@
 
           if (accounts && accounts.length > 0) {
             updateUI(accounts[0]);
-            alert("Pera Wallet reconnected successfully.");
             goToDashboard();
           } else {
             handleDisconnect();
@@ -312,7 +309,6 @@
 
         if (accounts && accounts.length > 0) {
           updateUI(accounts[0]);
-          alert("Pera Wallet connected successfully.");
           goToDashboard();
         } else {
           alert("No accounts returned from Pera Wallet.");
