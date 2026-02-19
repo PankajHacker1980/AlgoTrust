@@ -10,9 +10,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Algorand SDK -->
     <script src="https://unpkg.com/algosdk@2.4.0/dist/browser/algosdk.min.js"></script>
-    <!-- Pera Wallet Connect SDK (UMD build exposes window.PeraWalletConnect) -->
-    <script src="https://unpkg.com/@perawallet/connect@1.1.3/dist/umd/index.min.js"></script>
-    
+    <!-- Pera Wallet Connect SDK - latest 1.4.2 UMD build for browser -->
+    <script src="https://cdn.jsdelivr.net/npm/@perawallet/connect@1.4.2/dist/umd/index.min.js"></script>
+
     <style>
         body { 
             font-family: 'Inter', sans-serif; 
@@ -48,11 +48,13 @@
             border-top-color: transparent;
             animation: spin 1s linear infinite;
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes spin { 
+            0% { transform: rotate(0deg); } 
+            100% { transform: rotate(360deg); } 
+        }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-6 md:p-12">
-
 
     <div class="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
         
@@ -143,8 +145,8 @@
 
         // Initialize PeraWallet and attempt to reconnect on page load
         window.addEventListener('load', () => {
+            // In the UMD build, the constructor is exposed on window.PeraWalletConnect
             if (window.PeraWalletConnect) {
-                // UMD build exposes constructor directly as window.PeraWalletConnect
                 peraWallet = new window.PeraWalletConnect();
 
                 // Try to restore previous session
@@ -155,7 +157,7 @@
 
                         if (accounts && accounts.length > 0) {
                             updateUI(accounts[0]);
-                            alert("Pera Wallet reconnected successfully."); // popup notification
+                            alert("Pera Wallet reconnected successfully.");
                         } else {
                             handleDisconnect();
                         }
@@ -200,7 +202,7 @@
 
             setLoading(true);
             try {
-                const accounts = await peraWallet.connect(); // returns array of addresses[web:6]
+                const accounts = await peraWallet.connect(); // returns array of addresses[web:22]
 
                 peraWallet.connector?.on("disconnect", handleDisconnect);
 
