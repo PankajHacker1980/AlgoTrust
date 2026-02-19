@@ -128,101 +128,112 @@
     </div>
 
     <script>
-        // Global variable for PeraWallet instance
-        let peraWallet;
+    let peraWallet = null;
 
-        // Get references to DOM elements
-        const connectBtn = document.getElementById('connect-btn');
-        const disconnectBtn = document.getElementById('disconnect-btn');
-        const btnText = document.getElementById('btn-text');
-        const btnLoader = document.getElementById('btn-loader');
-        const enterBtn = document.getElementById('enter-dashboard');
-        const statusPanel = document.getElementById('wallet-status');
-        const addressText = document.getElementById('account-address');
+    const connectBtn = document.getElementById('connect-btn');
+    const disconnectBtn = document.getElementById('disconnect-btn');
+    const btnText = document.getElementById('btn-text');
+    const btnLoader = document.getElementById('btn-loader');
+    const enterBtn = document.getElementById('enter-dashboard');
+    const statusPanel = document.getElementById('wallet-status');
+    const addressText = document.getElementById('account-address');
 
-        // --- Event Listeners ---
+    // Initialize wallet on load
+    window.addEventListener("load", async () => {
+        if (!window.PeraWalletConnect) {
+            console.error("Pera Wallet SDK not loaded.");
+            return;
+        }
 
-        // Initialize PeraWallet and attempt to reconnect on page load
-        window.addEventListener('load', () => {
-            if (typeof PeraWalletConnect !== 'undefined') {
-                peraWallet = new PeraWalletConnect.PeraWalletConnect();
-                
-                // Attempt to reconnect to an existing session
-                peraWallet.reconnectSession().then((accounts) => {
-                    peraWallet.connector?.on("disconnect", handleDisconnect); // Setup disconnect listener
-                    if (accounts && accounts.length > 0) {
-                        updateUI(accounts[0]); // Update UI if reconnected
-                    }
-                }).catch((err) => {
-                    console.info("No active Pera Wallet session found.");
-                });
-            } else {
-                console.error("Pera Wallet SDK failed to load. Please check your internet connection or CDN link.");
+        // ✅ Correct initialization
+        peraWallet = new window.PeraWalletConnect();
+
+        try {
+            const accounts = await peraWallet.reconnectSession();
+
+            if (accounts.length) {
+                updateUI(accounts[0]);
             }
-        });
 
-        // Handle the "Connect Pera Wallet" button click
-        connectBtn.addEventListener('click', handleConnect);
+            peraWallet.connector?.on("disconnect", handleDisconnect);
 
-        // Handle the "Disconnect" button click
-        disconnectBtn.addEventListener('click', () => {
-            if (peraWallet) {
-                peraWallet.disconnect().then(handleDisconnect).catch(handleDisconnect); // Ensure UI updates even if disconnect fails
+        } catch (error) {
+            console.log("No active session");
+        }
+    });
+
+    connectBtn.addEventListener("click", connectWallet);
+    disconnectBtn.addEventListener("click", disconnectWallet);
+
+    async function connectWallet() {
+        if (!peraWallet) return;
+
+        setLoading(true);
+
+        try {
+            const accounts = await peraWallet.connect();
+
+            if (accounts.length) {
+                updateUI(accounts[0]);
             }
-        });
 
-        // --- Functions ---
+            peraWallet.connector?.on("disconnect", handleDisconnect);
 
-        async function handleConnect() {
-            setLoading(true); // Show loader and disable button
-            try {
-                const accounts = await peraWallet.connect(); // Prompt Pera Wallet connection
-                peraWallet.connector?.on("disconnect", handleDisconnect); // Set up listener for disconnect events
-                
-                if (accounts && accounts.length > 0) {
-                    updateUI(accounts[0]); // Update UI with connected account address
-                }
-            } catch (error) {
-                // Ignore if the user simply closed the connection modal
-                if (error?.data?.type !== "CONNECT_MODAL_CLOSED") {
-                    console.error("Connection error:", error);
-                    alert("Connection failed. Please ensure Pera Wallet is installed and try again.");
-                }
-            } finally {
-                setLoading(false); // Hide loader and re-enable button
+        } catch (error) {
+            if (error?.data?.type !== "CONNECT_MODAL_CLOSED") {
+                console.error("Connection failed:", error);
+                alert("Connection failed. Make sure Pera Wallet is installed.");
             }
         }
 
-        function updateUI(address) {
-            addressText.innerText = address;
-            localStorage.setItem('walletAddress', address); // Persist address
-            
-            statusPanel.classList.remove('hidden'); // Show connected status
-            connectBtn.classList.add('hidden'); // Hide connect button
-            enterBtn.classList.remove('hidden'); // Show enter dashboard button
+        setLoading(false);
+    }
+
+    async function disconnectWallet() {
+        if (!peraWallet) return;
+
+        try {
+            await peraWallet.disconnect();
+        } catch (error) {
+            console.log("Disconnect issue");
         }
 
-        function handleDisconnect() {
-            localStorage.removeItem('walletAddress'); // Clear persisted address
-            statusPanel.classList.add('hidden'); // Hide connected status
-            enterBtn.classList.add('hidden'); // Hide enter dashboard button
-            connectBtn.classList.remove('hidden'); // Show connect button
-            btnText.innerText = "Connect Pera Wallet"; // Reset button text
-        }
+        handleDisconnect();
+    }
 
-        function setLoading(isLoading) {
-            if (isLoading) {
-                btnText.innerText = "Checking Pera..."; // Update button text
-                btnLoader.classList.remove('hidden'); // Show loader
-                connectBtn.disabled = true; // Disable button
-                connectBtn.style.opacity = "0.7"; // Visual feedback
-            } else {
-                btnText.innerText = "Connect Pera Wallet"; // Reset button text
-                btnLoader.classList.add('hidden'); // Hide loader
-                connectBtn.disabled = false; // Re-enable button
-                connectBtn.style.opacity = "1"; // Reset opacity
-            }
+    function updateUI(address) {
+        addressText.innerText = address;
+        localStorage.setItem("walletAddress", address);
+
+        statusPanel.classList.remove("hidden");
+        connectBtn.classList.add("hidden");
+        enterBtn.classList.remove("hidden");
+    }
+
+    function handleDisconnect() {
+        localStorage.removeItem("walletAddress");
+
+        statusPanel.classList.add("hidden");
+        enterBtn.classList.add("hidden");
+        connectBtn.classList.remove("hidden");
+
+        btnText.innerText = "Connect Pera Wallet";
+    }
+
+    function setLoading(state) {
+        if (state) {
+            btnText.innerText = "Checking Pera...";
+            btnLoader.classList.remove("hidden");
+            connectBtn.disabled = true;
+            connectBtn.style.opacity = "0.7";
+        } else {
+            btnText.innerText = "Connect Pera Wallet";
+            btnLoader.classList.add("hidden");
+            connectBtn.disabled = false;
+            connectBtn.style.opacity = "1";
         }
-    </script>
+    }
+</script>
+
 </body>
 </html>
