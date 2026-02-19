@@ -5,8 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Governance | AlgoTrust</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://unpkg.com/algosdk@2.4.0/dist/browser/algosdk.min.js"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  >
 
   <style>
     body {
@@ -71,7 +73,7 @@
     <div class="mb-12">
       <h2 class="text-3xl font-bold text-slate-900 mb-4">Active Proposals</h2>
       <p class="text-slate-500 text-lg leading-relaxed">
-        Shape the future of our campus. Your vote is recorded permanently on the Algorand blockchain.
+        Shape the future of our campus. Your vote is recorded (for this demo) in your browser and reflected in real time.
       </p>
     </div>
 
@@ -81,9 +83,11 @@
         <div class="flex justify-between items-start mb-6">
           <div>
             <span class="badge-chip bg-blue-100 text-blue-600 mb-3 inline-block">Governance</span>
-            <h3 id="prop-title" class="text-2xl font-bold text-slate-900">Loading proposal...</h3>
+            <h3 id="prop-title" class="text-2xl font-bold text-slate-900">
+              Extend 24/7 Library Access During Finals Week
+            </h3>
             <p id="prop-desc" class="text-slate-500 mt-2">
-              Shall the University increase funding for 24/7 library access during finals week?
+              Should the university fund 24/7 library access and additional study pods during the final examination period?
             </p>
           </div>
           <div
@@ -141,7 +145,7 @@
         </div>
 
         <p class="text-[11px] text-slate-400 mt-6 text-center italic">
-          You can only vote once. Voting requires an on-chain transaction to the smart contract.
+          Demo mode: one vote per browser. Totals are stored locally and reset if you clear site data.
         </p>
       </div>
     </div>
@@ -155,22 +159,9 @@
     </div>
   </main>
 
-  <script type="module">
-    import { VotingModule } from './js/modules/voting.js';
-
-    // DEMO WALLET: same Testnet mnemonic used in index/dashboard.
-    const DEMO_MNEMONIC =
-      "PASTE YOUR 25-WORD TESTNET MNEMONIC HERE";
-
-    let demoAccount = null;
-    try {
-      demoAccount = DEMO_MNEMONIC.trim()
-        ? algosdk.mnemonicToSecretKey(DEMO_MNEMONIC)
-        : null;
-    } catch (e) {
-      console.error("Invalid mnemonic in governance page:", e);
-      demoAccount = null;
-    }
+  <script>
+    // Same demo address pattern as index.html
+    const DEMO_ADDRESS = "DEMO-ALGO-ADDRESS-1234";
 
     const walletPill = document.getElementById('wallet-pill');
     const titleEl = document.getElementById('prop-title');
@@ -179,110 +170,155 @@
     const noCountEl = document.getElementById('no-count');
     const yesBarEl = document.getElementById('yes-bar');
     const noBarEl = document.getElementById('no-bar');
+    const btnYes = document.getElementById('vote-yes-btn');
+    const btnNo = document.getElementById('vote-no-btn');
+
+    const DEFAULT_DEMO_PROPOSAL = {
+      id: "demo-proposal-1",
+      title: "Extend 24/7 Library Access During Finals Week",
+      description:
+        "Should the university fund 24/7 library access and additional study pods during the final examination period?",
+      isActive: true
+    };
 
     function truncateAddress(addr) {
       if (!addr) return "";
       return addr.slice(0, 4) + "..." + addr.slice(-4);
     }
 
-    // Default demo proposal
-    const DEFAULT_DEMO_PROPOSAL = {
-      title: "Extend 24/7 Library Access During Finals Week",
-      description:
-        "Should the university fund 24/7 library access and additional study pods during the final examination period?",
-      yesVotes: 5,
-      noVotes: 2,
-      isActive: true
-    };
-
-    async function getProposalData() {
+    function loadVotes() {
+      const raw = localStorage.getItem("demoVotes");
+      if (!raw) {
+        return { yes: 5, no: 2 };
+      }
       try {
-        const data = await VotingModule.fetchProposalData();
-        if (data && data.isActive) {
-          return {
-            title: data.title || DEFAULT_DEMO_PROPOSAL.title,
-            description: data.description || DEFAULT_DEMO_PROPOSAL.description,
-            yesVotes: typeof data.yesVotes === "number" ? data.yesVotes : DEFAULT_DEMO_PROPOSAL.yesVotes,
-            noVotes: typeof data.noVotes === "number" ? data.noVotes : DEFAULT_DEMO_PROPOSAL.noVotes,
-            isActive: true
-          };
-        }
-        return DEFAULT_DEMO_PROPOSAL;
-      } catch (e) {
-        console.warn("Using demo proposal because fetchProposalData failed:", e);
-        return DEFAULT_DEMO_PROPOSAL;
+        const parsed = JSON.parse(raw);
+        return {
+          yes: typeof parsed.yes === "number" ? parsed.yes : 5,
+          no: typeof parsed.no === "number" ? parsed.no : 2
+        };
+      } catch {
+        return { yes: 5, no: 2 };
       }
     }
 
-    async function updateVotingUI() {
-      const address = localStorage.getItem('walletAddress');
+    function saveVotes(yes, no) {
+      localStorage.setItem("demoVotes", JSON.stringify({ yes, no }));
+    }
+
+    function loadUserVote() {
+      // Track per address if they already voted
+      const addr = localStorage.getItem("walletAddress");
+      if (!addr) return null;
+      const raw = localStorage.getItem("demoUserVotes");
+      if (!raw) return null;
+      try {
+        const map = JSON.parse(raw);
+        return map[addr] ?? null;
+      } catch {
+        return null;
+      }
+    }
+
+    function saveUserVote(choice) {
+      const addr = localStorage.getItem("walletAddress");
+      if (!addr) return;
+      const raw = localStorage.getItem("demoUserVotes");
+      let map = {};
+      if (raw) {
+        try {
+          map = JSON.parse(raw) || {};
+        } catch {
+          map = {};
+        }
+      }
+      map[addr] = choice;
+      localStorage.setItem("demoUserVotes", JSON.stringify(map));
+    }
+
+    function updateBars(yes, no) {
+      yesCountEl.innerText = yes;
+      noCountEl.innerText = no;
+
+      const total = yes + no;
+      if (total > 0) {
+        const yesPercent = (yes / total) * 100;
+        const noPercent = (no / total) * 100;
+        yesBarEl.style.width = `${yesPercent}%`;
+        noBarEl.style.width = `${noPercent}%`;
+      } else {
+        yesBarEl.style.width = `50%`;
+        noBarEl.style.width = `50%`;
+      }
+    }
+
+    function disableVotingUI(reason) {
+      btnYes.disabled = true;
+      btnNo.disabled = true;
+      if (reason === "already") {
+        btnYes.innerText = "Already Voted";
+        btnNo.innerText = "Already Voted";
+      }
+    }
+
+    async function initPage() {
+      const address = localStorage.getItem("walletAddress");
       if (!address) {
         // Not "logged in" → back to index
-        window.location.href = '../index.html';
+        window.location.href = "../index.html";
         return;
       }
 
       walletPill.innerText = truncateAddress(address);
 
-      const data = await getProposalData();
+      // Setup default proposal (can later be driven by backend)
+      titleEl.innerText = DEFAULT_DEMO_PROPOSAL.title;
+      descEl.innerText = DEFAULT_DEMO_PROPOSAL.description;
 
-      if (data && data.isActive) {
-        titleEl.innerText = data.title;
-        descEl.innerText = data.description;
-        yesCountEl.innerText = data.yesVotes;
-        noCountEl.innerText = data.noVotes;
+      // Load votes from localStorage
+      const votes = loadVotes();
+      updateBars(votes.yes, votes.no);
 
-        const total = data.yesVotes + data.noVotes;
-        if (total > 0) {
-          const yesPercent = (data.yesVotes / total) * 100;
-          const noPercent = (data.noVotes / total) * 100;
-          yesBarEl.style.width = `${yesPercent}%`;
-          noBarEl.style.width = `${noPercent}%`;
-        } else {
-          yesBarEl.style.width = `50%`;
-          noBarEl.style.width = `50%`;
-        }
-      } else {
-        document.getElementById('proposal-container').classList.add('hidden');
-        document.getElementById('no-proposal').classList.remove('hidden');
+      const userVote = loadUserVote();
+      if (userVote !== null) {
+        disableVotingUI("already");
       }
     }
 
     async function handleVote(choice) {
-      const address = localStorage.getItem('walletAddress');
-      if (!address || !demoAccount) {
-        alert("Wallet not configured or not connected.");
+      const address = localStorage.getItem("walletAddress");
+      if (!address) {
+        alert("Wallet not connected (demo). Go back and connect again.");
         return;
       }
 
-      const btnYes = document.getElementById('vote-yes-btn');
-      const btnNo = document.getElementById('vote-no-btn');
+      const existing = loadUserVote();
+      if (existing !== null) {
+        alert("You have already voted in this demo.");
+        disableVotingUI("already");
+        return;
+      }
 
       btnYes.disabled = true;
       btnNo.disabled = true;
 
-      try {
-        // VotingModule.castVote(address, choice, demoAccount)
-        await VotingModule.castVote(address, choice, demoAccount);
-        alert("Vote cast successfully!");
-        window.location.reload();
-      } catch (err) {
-        console.error(err);
-        alert("Voting failed. Ensure you haven't already voted and have enough ALGO for fees.");
-      } finally {
-        btnYes.disabled = false;
-        btnNo.disabled = false;
+      const votes = loadVotes();
+      if (choice === 1) {
+        votes.yes += 1;
+      } else {
+        votes.no += 1;
       }
+      saveVotes(votes.yes, votes.no);
+      saveUserVote(choice);
+      updateBars(votes.yes, votes.no);
+
+      alert("Vote recorded (demo only).");
     }
 
-    document
-      .getElementById('vote-yes-btn')
-      .addEventListener('click', () => handleVote(1));
-    document
-      .getElementById('vote-no-btn')
-      .addEventListener('click', () => handleVote(0));
+    btnYes.addEventListener("click", () => handleVote(1));
+    btnNo.addEventListener("click", () => handleVote(0));
 
-    updateVotingUI();
+    initPage();
   </script>
 </body>
 </html>

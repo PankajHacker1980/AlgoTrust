@@ -1,167 +1,327 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Split Bill | AlgoTrust</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
-    <script src="https://unpkg.com/algosdk@2.4.0/dist/browser/algosdk.min.js"></script>
-    <style>
-        body { font-family: 'Inter', sans-serif; background-color: #F9FAFB; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Split Bill | AlgoTrust</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  >
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #fffaf5;
+      background-image:
+        radial-gradient(at 0% 0%, #fff7ed 0px, transparent 50%),
+        radial-gradient(at 100% 100%, #ffedd5 0px, transparent 50%);
+    }
+    .nav-glass {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      box-shadow: 0 20px 40px -10px rgba(234, 88, 12, 0.1);
+      border-radius: 32px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .glass-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 30px 60px -12px rgba(234, 88, 12, 0.15);
+      border-color: rgba(0, 0, 0, 0.15);
+    }
+    .badge-chip {
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+  </style>
 </head>
 <body class="min-h-screen pb-20">
 
-    <!-- Header Navigation -->
-    <nav class="bg-white/80 backdrop-blur-md border-b border-slate-100 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
-            <div class="flex items-center space-x-4">
-                <a href="dashboard.html" class="p-2 hover:bg-slate-100 rounded-full transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                    </svg>
-                </a>
-                <h1 class="text-xl font-bold text-slate-900">Expense Settlement</h1>
-            </div>
-            <div id="wallet-pill" class="bg-emerald-50 px-4 py-2 rounded-full border border-emerald-100 text-emerald-600 text-sm font-mono font-bold">
-                Connecting...
-            </div>
+  <!-- Header Navigation -->
+  <nav class="nav-glass sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
+      <div class="flex items-center space-x-4">
+        <a href="dashboard.html" class="p-2 hover:bg-slate-100 rounded-full transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+        </a>
+        <h1 class="text-xl font-bold text-slate-900">Expense Settlement</h1>
+      </div>
+      <div
+        id="wallet-pill"
+        class="bg-emerald-50 px-4 py-2 rounded-full border border-emerald-100 text-emerald-600 text-sm font-mono font-bold"
+      >
+        Connecting...
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-5xl mx-auto px-6 mt-12">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+      <!-- Left Side: Input Form -->
+      <div class="space-y-8">
+        <div>
+          <h2 class="text-3xl font-bold text-slate-900 mb-2">Split the Bill</h2>
+          <p class="text-slate-500">
+            Simplify campus life. Split club dues or house expenses and see who owes how much instantly.
+          </p>
         </div>
-    </nav>
 
-    <main class="max-w-5xl mx-auto px-6 mt-12">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            
-            <!-- Left Side: Input Form -->
-            <div class="space-y-8">
-                <div>
-                    <h2 class="text-3xl font-bold text-slate-900 mb-2">Split the Bill</h2>
-                    <p class="text-slate-500">Simplify campus life. Split club dues or house expenses and settle instantly with colleagues.</p>
-                </div>
+        <div class="glass-card p-8 space-y-6">
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-tight">
+              Group / Expense Name
+            </label>
+            <input
+              type="text"
+              id="group-name"
+              placeholder="e.g. Student House Electricity"
+              class="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400"
+            >
+          </div>
 
-                <div class="glass-card bg-white p-8 rounded-[32px] border border-white space-y-6">
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-tight">Group / Expense Name</label>
-                        <input type="text" id="group-name" placeholder="e.g. Student House Electricity" class="w-full">
-                    </div>
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-tight">
+              Total Amount (ALGO)
+            </label>
+            <input
+              type="number"
+              id="total-amount"
+              placeholder="0.00"
+              min="0"
+              step="0.01"
+              class="w-full px-4 py-3 rounded-2xl border border-slate-200 text-lg font-semibold text-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400"
+            >
+          </div>
 
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-tight">Total Amount (ALGO)</label>
-                        <input type="number" id="total-amount" placeholder="0.00" class="w-full text-lg font-semibold text-indigo-600">
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-tight">Participant Addresses (One per line)</label>
-                        <textarea id="participants-list" rows="5" placeholder="ADDRESS1...&#10;ADDRESS2..." class="w-full font-mono text-xs"></textarea>
-                        <p class="text-[11px] text-slate-400 mt-2">Maximum 15 participants allowed per settlement group.</p>
-                    </div>
-
-                    <button id="calculate-btn" class="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-slate-800 transition-all active:scale-[0.98]">
-                        Calculate Split
-                    </button>
-                </div>
+          <!-- Interactive person selector -->
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-3 uppercase tracking-tight">
+              Number of Persons
+            </label>
+            <div class="flex items-center gap-4">
+              <button
+                id="person-decrease"
+                class="h-10 w-10 rounded-full border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-100 active:scale-95"
+                type="button"
+              >
+                -
+              </button>
+              <input
+                type="number"
+                id="person-count"
+                min="1"
+                max="15"
+                value="2"
+                class="w-20 text-center text-lg font-semibold px-3 py-2 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400"
+              >
+              <button
+                id="person-increase"
+                class="h-10 w-10 rounded-full border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-100 active:scale-95"
+                type="button"
+              >
+                +
+              </button>
+              <span class="text-xs text-slate-400 ml-1">
+                Max 15 persons
+              </span>
             </div>
+          </div>
 
-            <!-- Right Side: Results & Settle -->
-            <div id="result-section" class="hidden space-y-6">
-                <div class="glass-card bg-white p-8 rounded-[32px] border border-white">
-                    <h3 class="text-xl font-bold text-slate-900 mb-6">Settlement Summary</h3>
-                    
-                    <div id="split-list" class="space-y-4 mb-8">
-                        <!-- Items injected by JS -->
-                    </div>
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-tight">
+              Participant Names (one per line)
+            </label>
+            <textarea
+              id="participants-list"
+              rows="5"
+              placeholder="Alice&#10;Bob&#10;Charlie"
+              class="w-full px-4 py-3 rounded-2xl border border-slate-200 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400"
+            ></textarea>
+            <p class="text-[11px] text-slate-400 mt-2">
+              If fewer names than persons are provided, generic labels will be auto-filled.
+            </p>
+          </div>
 
-                    <div class="pt-6 border-t border-slate-100 space-y-4">
-                        <div class="flex justify-between items-center">
-                            <span class="text-slate-500 font-medium">Per Person Share</span>
-                            <span id="share-display" class="text-xl font-extrabold text-slate-900">0.00 ALGO</span>
-                        </div>
-                        
-                        <button id="settle-btn" class="btn-primary-ios w-full py-4 bg-emerald-600 text-white shadow-lg shadow-emerald-100 hover:bg-emerald-700">
-                            Settle & Pay All
-                        </button>
-                        
-                        <p class="text-[10px] text-slate-400 text-center uppercase font-bold tracking-widest">
-                            Secure Atomic Group Transaction
-                        </p>
-                    </div>
-                </div>
-
-                <div class="p-6 bg-blue-50 rounded-[24px] border border-blue-100 flex items-start space-x-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <p class="text-sm text-blue-700 leading-relaxed">
-                        Settling will create an <strong>Atomic Transfer</strong>. This ensures either all participants are paid simultaneously, or none are, preventing partial payments.
-                    </p>
-                </div>
-            </div>
-
+          <button
+            id="calculate-btn"
+            class="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-slate-800 transition-all active:scale-[0.98]"
+          >
+            Calculate Split
+          </button>
         </div>
-    </main>
+      </div>
 
-    <script type="module">
-        import { SplitModule } from './js/modules/split.js';
-        import { PeraWalletManager } from './js/wallet.js';
-        import { truncateAddress } from './js/algorand.js';
+      <!-- Right Side: Results -->
+      <div id="result-section" class="hidden space-y-6">
+        <div class="glass-card p-8">
+          <div class="flex items-center justify-between mb-4">
+            <span class="badge-chip bg-emerald-100 text-emerald-700">Preview</span>
+            <span id="group-label" class="text-xs text-slate-400 font-semibold uppercase tracking-widest">
+              Demo Settlement
+            </span>
+          </div>
 
-        const peraManager = new PeraWalletManager();
-        const address = localStorage.getItem('walletAddress');
-        let currentParticipants = [];
-        let currentTotal = 0;
+          <h3 class="text-xl font-bold text-slate-900 mb-6">Settlement Summary</h3>
 
-        // Init UI
-        if (address) {
-            document.getElementById('wallet-pill').innerText = truncateAddress(address);
-        }
+          <div id="split-list" class="space-y-3 mb-8">
+            <!-- Items injected by JS -->
+          </div>
 
-        document.getElementById('calculate-btn').addEventListener('click', () => {
-            const total = parseFloat(document.getElementById('total-amount').value);
-            const listRaw = document.getElementById('participants-list').value;
-            
-            if (!total || total <= 0 || !listRaw) return alert("Please fill in all fields.");
+          <div class="pt-6 border-t border-slate-100 space-y-4">
+            <div class="flex justify-between items-center">
+              <span class="text-slate-500 font-medium">Per Person Share</span>
+              <span id="share-display" class="text-xl font-extrabold text-slate-900">
+                0.00 ALGO
+              </span>
+            </div>
 
-            const splits = SplitModule.calculateSplits(total, listRaw);
-            currentParticipants = splits.map(s => s.address);
-            currentTotal = total;
+            <button
+              id="settle-btn"
+              class="w-full py-4 bg-emerald-600 text-white rounded-2xl font-bold hover:bg-emerald-700 shadow-lg shadow-emerald-100 active:scale-[0.98]"
+            >
+              Mark as Settled (Demo)
+            </button>
 
-            // Render Results
-            const listEl = document.getElementById('split-list');
-            listEl.innerHTML = '';
-            
-            splits.forEach(item => {
-                const div = document.createElement('div');
-                div.className = 'flex justify-between items-center p-3 bg-slate-50 rounded-xl border border-slate-100';
-                div.innerHTML = `
-                    <span class="text-xs font-mono text-slate-500">${truncateAddress(item.address)}</span>
-                    <span class="text-sm font-bold text-slate-900">${item.share} ALGO</span>
-                `;
-                listEl.appendChild(div);
-            });
+            <p class="text-[10px] text-slate-400 text-center uppercase font-bold tracking-widest">
+              Demo only – no on-chain transaction
+            </p>
+          </div>
+        </div>
 
-            document.getElementById('share-display').innerText = `${splits[0].share} ALGO`;
-            document.getElementById('result-section').classList.remove('hidden');
-        });
+        <div class="p-6 bg-blue-50 rounded-[24px] border border-blue-100 flex items-start space-x-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500 mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p class="text-sm text-blue-700 leading-relaxed">
+            In the full version, this screen would trigger an on-chain atomic group transaction
+            so everyone gets paid in a single, all-or-nothing operation.
+          </p>
+        </div>
+      </div>
+    </div>
+  </main>
 
-        document.getElementById('settle-btn').addEventListener('click', async () => {
-            const btn = document.getElementById('settle-btn');
-            btn.disabled = true;
-            btn.innerText = "Signing Group Tx...";
+  <script>
+    const DEMO_ADDRESS = "DEMO-ALGO-ADDRESS-1234";
 
-            try {
-                await SplitModule.settleExpenses(address, currentTotal, currentParticipants, peraManager);
-                alert("Settlement Successful! All participants paid.");
-                window.location.href = 'dashboard.html';
-            } catch (err) {
-                console.error(err);
-                alert("Settlement failed. Check balance or wallet connection.");
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "Settle & Pay All";
-            }
-        });
-    </script>
+    const walletPill = document.getElementById("wallet-pill");
+    const groupNameInput = document.getElementById("group-name");
+    const totalAmountInput = document.getElementById("total-amount");
+    const personCountInput = document.getElementById("person-count");
+    const personDecreaseBtn = document.getElementById("person-decrease");
+    const personIncreaseBtn = document.getElementById("person-increase");
+    const participantsTextarea = document.getElementById("participants-list");
+    const calculateBtn = document.getElementById("calculate-btn");
+    const resultSection = document.getElementById("result-section");
+    const splitListEl = document.getElementById("split-list");
+    const shareDisplay = document.getElementById("share-display");
+    const groupLabel = document.getElementById("group-label");
+    const settleBtn = document.getElementById("settle-btn");
+
+    function truncateAddress(addr) {
+      if (!addr) return "";
+      return addr.slice(0, 4) + "..." + addr.slice(-4);
+    }
+
+    function ensureWallet() {
+      let addr = localStorage.getItem("walletAddress");
+      if (!addr) {
+        addr = DEMO_ADDRESS;
+        localStorage.setItem("walletAddress", addr);
+      }
+      walletPill.innerText = truncateAddress(addr);
+      return addr;
+    }
+
+    function clampPersonCount() {
+      let val = parseInt(personCountInput.value || "1", 10);
+      if (isNaN(val) || val < 1) val = 1;
+      if (val > 15) val = 15;
+      personCountInput.value = val;
+      return val;
+    }
+
+    personDecreaseBtn.addEventListener("click", () => {
+      let val = clampPersonCount();
+      if (val > 1) {
+        personCountInput.value = val - 1;
+      }
+    });
+
+    personIncreaseBtn.addEventListener("click", () => {
+      let val = clampPersonCount();
+      if (val < 15) {
+        personCountInput.value = val + 1;
+      }
+    });
+
+    personCountInput.addEventListener("change", clampPersonCount);
+
+    calculateBtn.addEventListener("click", () => {
+      ensureWallet();
+
+      const total = parseFloat(totalAmountInput.value);
+      const personCount = clampPersonCount();
+      const groupName = groupNameInput.value.trim() || "Untitled Group";
+
+      if (!total || total <= 0) {
+        alert("Please enter a valid total amount.");
+        return;
+      }
+
+      const rawLines = participantsTextarea.value
+        .split("\n")
+        .map(l => l.trim())
+        .filter(Boolean);
+
+      const participants = [];
+      for (let i = 0; i < personCount; i++) {
+        const name = rawLines[i] || `Person ${i + 1}`;
+        participants.push(name);
+      }
+
+      const perShare = +(total / personCount).toFixed(2);
+
+      splitListEl.innerHTML = "";
+      participants.forEach((name, idx) => {
+        const div = document.createElement("div");
+        div.className =
+          "flex justify-between items-center p-3 bg-slate-50 rounded-xl border border-slate-100";
+        div.innerHTML = `
+          <div class="flex items-center space-x-3">
+            <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold">
+              ${idx + 1}
+            </span>
+            <span class="text-sm font-medium text-slate-800">${name}</span>
+          </div>
+          <span class="text-sm font-bold text-slate-900">${perShare} ALGO</span>
+        `;
+        splitListEl.appendChild(div);
+      });
+
+      shareDisplay.innerText = `${perShare} ALGO`;
+      groupLabel.innerText = groupName;
+      resultSection.classList.remove("hidden");
+    });
+
+    settleBtn.addEventListener("click", () => {
+      alert("Marked as settled (demo only, no real payment).");
+    });
+
+    ensureWallet();
+  </script>
 </body>
 </html>

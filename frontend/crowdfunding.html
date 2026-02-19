@@ -1,157 +1,347 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crowdfunding | AlgoTrust</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
-    <script src="https://unpkg.com/algosdk@2.4.0/dist/browser/algosdk.min.js"></script>
-    <style>
-        body { font-family: 'Inter', sans-serif; background-color: #F9FAFB; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crowdfunding | AlgoTrust</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  >
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #fffaf5;
+      background-image:
+        radial-gradient(at 0% 0%, #fff7ed 0px, transparent 50%),
+        radial-gradient(at 100% 100%, #ffedd5 0px, transparent 50%);
+    }
+    .nav-glass {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      box-shadow: 0 20px 40px -10px rgba(234, 88, 12, 0.1);
+      border-radius: 40px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .glass-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 30px 60px -12px rgba(234, 88, 12, 0.15);
+      border-color: rgba(0, 0, 0, 0.15);
+    }
+    .badge-chip {
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+    .progress-track {
+      @apply h-3 bg-slate-100 rounded-full overflow-hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 9999px;
+      transition: width 0.7s ease-out;
+    }
+  </style>
 </head>
 <body class="min-h-screen pb-20">
 
-    
-    <nav class="bg-white/80 backdrop-blur-md border-b border-slate-100 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
-            <div class="flex items-center space-x-4">
-                <a href="dashboard.html" class="p-2 hover:bg-slate-100 rounded-full transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                    </svg>
-                </a>
-                <h1 class="text-xl font-bold text-slate-900">Campus Crowdfunding</h1>
-            </div>
-            <div id="wallet-pill" class="bg-indigo-50 px-4 py-2 rounded-full border border-indigo-100 text-indigo-600 text-sm font-mono font-bold">
-                Connecting...
-            </div>
-        </div>
-    </nav>
+  <!-- Header Navigation -->
+  <nav class="nav-glass sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
+      <div class="flex items-center space-x-4">
+        <a href="dashboard.html" class="p-2 hover:bg-slate-100 rounded-full transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+        </a>
+        <h1 class="text-xl font-bold text-slate-900">Campus Crowdfunding</h1>
+      </div>
+      <div
+        id="wallet-pill"
+        class="bg-orange-50 px-4 py-2 rounded-full border border-orange-100 text-orange-600 text-sm font-mono font-bold"
+      >
+        Connecting...
+      </div>
+    </div>
+  </nav>
 
-    <main class="max-w-4xl mx-auto px-6 mt-12">
-        
-        <div class="mb-12">
-            <h2 class="text-3xl font-bold text-slate-900 mb-4">Support Local Initiatives</h2>
-            <p class="text-slate-500 text-lg">Directly fund student clubs, lab equipment, and campus events through secure on-chain contributions.</p>
-        </div>
+  <main class="max-w-4xl mx-auto px-6 mt-12">
+    <!-- Hero Section -->
+    <div class="mb-12">
+      <h2 class="text-3xl font-bold text-slate-900 mb-4">Support Local Initiatives</h2>
+      <p class="text-slate-500 text-lg">
+        Directly fund student clubs, lab equipment, and campus events. In this demo, contributions and OTP checks run locally in your browser.
+      </p>
+    </div>
 
-        
-        <div id="campaign-container" class="space-y-8">
-            <div class="glass-card bg-white p-10 rounded-[40px] border border-white relative overflow-hidden">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                    <div>
-                        <span class="badge-chip bg-green-100 text-green-600 mb-3 inline-block">Active Campaign</span>
-                        <h3 id="campaign-title" class="text-2xl font-bold text-slate-900">New Library Study Pods</h3>
-                        <p class="text-slate-500 mt-2">Fundraising for soundproof pods in the North Wing Library.</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-sm font-medium text-slate-400">Target Goal</p>
-                        <p id="goal-amount" class="text-2xl font-extrabold text-indigo-600">-- ALGO</p>
-                    </div>
-                </div>
-
-                
-                <div class="mb-8">
-                    <div class="flex justify-between text-sm mb-2">
-                        <span class="font-bold text-slate-700">Progress: <span id="raised-percentage">0</span>%</span>
-                        <span id="raised-amount" class="text-slate-500">0 / 0 ALGO</span>
-                    </div>
-                    <div class="progress-container">
-                        <div id="progress-bar-fill" class="progress-bar bg-indigo-600" style="width: 0%"></div>
-                    </div>
-                </div>
-
-                
-                <div class="bg-slate-50 p-6 rounded-[24px] border border-slate-100">
-                    <label class="block text-sm font-bold text-slate-700 mb-3 uppercase tracking-tight">Your Contribution (ALGO)</label>
-                    <div class="flex flex-col md:flex-row gap-4">
-                        <input type="number" id="contribution-amount" placeholder="e.g. 10" class="flex-1 text-lg font-semibold">
-                        <button id="contribute-btn" class="btn-primary-ios bg-indigo-600 text-white px-10 py-4 hover:bg-indigo-700 shadow-lg shadow-indigo-200">
-                            Confirm Contribution
-                        </button>
-                    </div>
-                    <p class="text-[11px] text-slate-400 mt-4 text-center">
-                        Note: Contributions are sent via an atomic group transaction including a payment and an app call.
-                    </p>
-                </div>
-
-                
-                <div id="admin-actions" class="hidden mt-8 pt-8 border-t border-slate-100">
-                    <button id="withdraw-btn" class="w-full py-4 border-2 border-dashed border-indigo-200 rounded-2xl text-indigo-600 font-bold hover:bg-indigo-50 transition-colors">
-                        Goal Met: Withdraw Funds to Student Union
-                    </button>
-                </div>
-            </div>
+    <!-- Campaign Card -->
+    <div id="campaign-container" class="space-y-8">
+      <div class="glass-card p-10 relative overflow-hidden">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+          <div>
+            <span class="badge-chip bg-green-100 text-green-600 mb-3 inline-block">Active Campaign</span>
+            <h3 id="campaign-title" class="text-2xl font-bold text-slate-900">New Library Study Pods</h3>
+            <p class="text-slate-500 mt-2">
+              Fundraising for soundproof pods in the North Wing Library.
+            </p>
+          </div>
+          <div class="text-right">
+            <p class="text-sm font-medium text-slate-400">Target Goal</p>
+            <p id="goal-amount" class="text-2xl font-extrabold text-orange-600">-- ALGO</p>
+          </div>
         </div>
 
-        
-        <div id="no-campaign" class="hidden text-center py-20">
-            <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-            </div>
-            <h3 class="text-xl font-bold text-slate-800">No active campaigns</h3>
-            <p class="text-slate-500">Check back later for new student initiatives.</p>
+        <!-- Progress -->
+        <div class="mb-8">
+          <div class="flex justify-between text-sm mb-2">
+            <span class="font-bold text-slate-700">
+              Progress: <span id="raised-percentage">0</span>%
+            </span>
+            <span id="raised-amount" class="text-slate-500">0 / 0 ALGO</span>
+          </div>
+          <div class="h-3 bg-slate-100 rounded-full overflow-hidden">
+            <div
+              id="progress-bar-fill"
+              class="progress-fill bg-orange-500"
+              style="width: 0%"
+            ></div>
+          </div>
         </div>
-    </main>
 
-    <script type="module">
-        import { CrowdfundingModule } from './js/modules/crowdfunding.js';
-        import { PeraWalletManager } from './js/wallet.js';
-        import { truncateAddress } from './js/algorand.js';
+        <!-- Contribution Form + OTP -->
+        <div class="bg-slate-50 p-6 rounded-[24px] border border-slate-100 space-y-4">
+          <label class="block text-sm font-bold text-slate-700 uppercase tracking-tight">
+            Your Contribution (ALGO)
+          </label>
+          <div class="flex flex-col md:flex-row gap-4">
+            <input
+              type="number"
+              id="contribution-amount"
+              placeholder="e.g. 10"
+              class="flex-1 text-lg font-semibold px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400"
+              min="1"
+            >
+          </div>
 
-        const peraManager = new PeraWalletManager();
-        const address = localStorage.getItem('walletAddress');
+          <div class="mt-4">
+            <label class="block text-sm font-bold text-slate-700 uppercase tracking-tight mb-2">
+              Payment OTP (6 digits)
+            </label>
+            <div class="flex flex-col md:flex-row gap-4 items-center">
+              <input
+                type="text"
+                id="otp-input"
+                maxlength="6"
+                placeholder="Enter 6-digit OTP"
+                class="flex-1 text-lg font-semibold tracking-[0.4em] text-center px-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400"
+              >
+              <button
+                id="contribute-btn"
+                class="w-full md:w-auto px-10 py-4 rounded-[20px] bg-slate-900 text-white font-bold hover:bg-slate-800 shadow-lg shadow-orange-200 transition-all active:scale-95"
+              >
+                Confirm Contribution
+              </button>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-3 text-center">
+              Demo OTP is <span class="font-semibold text-orange-600">120811</span>. In production, this would be generated and verified server-side.
+            </p>
+          </div>
+        </div>
 
-        async function updateCampaignUI() {
-            if (!address) return;
-            document.getElementById('wallet-pill').innerText = truncateAddress(address);
+        <!-- Admin Actions -->
+        <div id="admin-actions" class="hidden mt-8 pt-8 border-t border-slate-100">
+          <button
+            id="withdraw-btn"
+            class="w-full py-4 border-2 border-dashed border-orange-200 rounded-2xl text-orange-600 font-bold hover:bg-orange-50 transition-colors"
+          >
+            Goal Met: Withdraw Funds to Student Union (Demo)
+          </button>
+        </div>
+      </div>
+    </div>
 
-            const data = await CrowdfundingModule.fetchCampaignInfo();
-            if (data && data.active) {
-                const percentage = Math.min((data.raised / data.goal) * 100, 100).toFixed(1);
-                
-                document.getElementById('goal-amount').innerText = `${data.goal} ALGO`;
-                document.getElementById('raised-amount').innerText = `${data.raised} / ${data.goal} ALGO`;
-                document.getElementById('raised-percentage').innerText = percentage;
-                document.getElementById('progress-bar-fill').style.width = `${percentage}%`;
+    <!-- No Campaign Placeholder -->
+    <div id="no-campaign" class="hidden text-center py-20">
+      <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <h3 class="text-xl font-bold text-slate-800">No active campaigns</h3>
+      <p class="text-slate-500">Check back later for new student initiatives.</p>
+    </div>
+  </main>
 
-                
-                if (data.raised >= data.goal) {
-                    document.getElementById('admin-actions').classList.remove('hidden');
-                }
-            } else {
-                document.getElementById('campaign-container').classList.add('hidden');
-                document.getElementById('no-campaign').classList.remove('hidden');
-            }
+  <script>
+    // Same demo address style as index/voting
+    const DEMO_ADDRESS = "DEMO-ALGO-ADDRESS-1234";
+    const DEMO_OTP = "120811";
+
+    const walletPill = document.getElementById("wallet-pill");
+    const goalAmountEl = document.getElementById("goal-amount");
+    const raisedAmountEl = document.getElementById("raised-amount");
+    const raisedPercentEl = document.getElementById("raised-percentage");
+    const progressBarEl = document.getElementById("progress-bar-fill");
+    const amountInput = document.getElementById("contribution-amount");
+    const otpInput = document.getElementById("otp-input");
+    const contributeBtn = document.getElementById("contribute-btn");
+    const withdrawBtn = document.getElementById("withdraw-btn");
+    const adminActions = document.getElementById("admin-actions");
+
+    // Demo campaign config
+    const CAMPAIGN_KEY = "demoCrowdfundCampaign";
+    const USER_CONTRIB_KEY = "demoCrowdfundUserContrib"; // per address
+    const DEMO_CAMPAIGN = {
+      goal: 250,   // goal in ALGO
+      raised: 40   // starting raised for nicer progress
+    };
+
+    function truncateAddress(addr) {
+      if (!addr) return "";
+      return addr.slice(0, 4) + "..." + addr.slice(-4);
+    }
+
+    function loadCampaignState() {
+      const raw = localStorage.getItem(CAMPAIGN_KEY);
+      if (!raw) {
+        return { ...DEMO_CAMPAIGN };
+      }
+      try {
+        const parsed = JSON.parse(raw);
+        return {
+          goal: typeof parsed.goal === "number" ? parsed.goal : DEMO_CAMPAIGN.goal,
+          raised: typeof parsed.raised === "number" ? parsed.raised : DEMO_CAMPAIGN.raised
+        };
+      } catch {
+        return { ...DEMO_CAMPAIGN };
+      }
+    }
+
+    function saveCampaignState(state) {
+      localStorage.setItem(CAMPAIGN_KEY, JSON.stringify(state));
+    }
+
+    function loadUserContrib(address) {
+      const raw = localStorage.getItem(USER_CONTRIB_KEY);
+      if (!raw) return 0;
+      try {
+        const map = JSON.parse(raw);
+        return typeof map[address] === "number" ? map[address] : 0;
+      } catch {
+        return 0;
+      }
+    }
+
+    function saveUserContrib(address, amount) {
+      const raw = localStorage.getItem(USER_CONTRIB_KEY);
+      let map = {};
+      if (raw) {
+        try {
+          map = JSON.parse(raw) || {};
+        } catch {
+          map = {};
         }
+      }
+      map[address] = (map[address] || 0) + amount;
+      localStorage.setItem(USER_CONTRIB_KEY, JSON.stringify(map));
+    }
 
-        document.getElementById('contribute-btn').addEventListener('click', async () => {
-            const amount = document.getElementById('contribution-amount').value;
-            if (!amount || amount <= 0) return alert("Enter a valid amount");
+    function renderState() {
+      const state = loadCampaignState();
+      const goal = state.goal;
+      const raised = state.raised;
 
-            const btn = document.getElementById('contribute-btn');
-            btn.disabled = true;
-            btn.innerText = "Processing...";
+      goalAmountEl.innerText = `${goal} ALGO`;
+      raisedAmountEl.innerText = `${raised} / ${goal} ALGO`;
 
-            try {
-                await CrowdfundingModule.contribute(address, amount, peraManager);
-                alert("Contribution successful!");
-                window.location.reload();
-            } catch (err) {
-                console.error(err);
-                alert("Transaction failed. See console.");
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "Confirm Contribution";
-            }
-        });
+      const percent = Math.min((raised / goal) * 100, 100);
+      raisedPercentEl.innerText = percent.toFixed(1);
+      progressBarEl.style.width = `${percent}%`;
 
-        updateCampaignUI();
-    </script>
+      if (raised >= goal) {
+        adminActions.classList.remove("hidden");
+      } else {
+        adminActions.classList.add("hidden");
+      }
+    }
+
+    function ensureWallet() {
+      // For demo, ensure we have some address set from index; if not, set the demo one.
+      let addr = localStorage.getItem("walletAddress");
+      if (!addr) {
+        localStorage.setItem("walletAddress", DEMO_ADDRESS);
+        addr = DEMO_ADDRESS;
+      }
+      walletPill.innerText = truncateAddress(addr);
+      return addr;
+    }
+
+    async function initPage() {
+      const addr = ensureWallet();
+      renderState();
+
+      const contributed = loadUserContrib(addr);
+      if (contributed > 0) {
+        // Optional UX: show a hint or disable if you want single-contribution
+        // For now, allow multiple contributions.
+      }
+    }
+
+    contributeBtn.addEventListener("click", () => {
+      const addr = ensureWallet();
+      const rawAmount = amountInput.value;
+      const otp = otpInput.value.trim();
+
+      const amount = Number(rawAmount);
+      if (!amount || amount <= 0) {
+        alert("Enter a valid contribution amount.");
+        return;
+      }
+
+      if (otp.length !== 6) {
+        alert("Please enter the 6-digit OTP.");
+        return;
+      }
+
+      if (otp !== DEMO_OTP) {
+        alert("Invalid OTP. For demo, the correct OTP is 120811.");
+        return;
+      }
+
+      const state = loadCampaignState();
+      state.raised += amount;
+      saveCampaignState(state);
+      saveUserContrib(addr, amount);
+      renderState();
+
+      amountInput.value = "";
+      otpInput.value = "";
+      alert("Contribution recorded (demo only, no real payment).");
+    });
+
+    if (withdrawBtn) {
+      withdrawBtn.addEventListener("click", () => {
+        const state = loadCampaignState();
+        if (state.raised < state.goal) {
+          alert("Goal is not met yet in this demo.");
+          return;
+        }
+        alert("Demo withdraw: funds would be sent to the Student Union in a real deployment.");
+      });
+    }
+
+    initPage();
+  </script>
 </body>
 </html>
