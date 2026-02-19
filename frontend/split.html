@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AlgoTrust · Split the Bill</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="bg-[#EEF2FF] min-h-screen">
+  <div class="max-w-5xl mx-auto px-4 py-6">
+    <!-- Top bar -->
+    <header class="flex items-center justify-between mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-2xl bg-[#111827] flex items-center justify-center">
+          <span class="text-white text-[11px] font-semibold tracking-[0.14em]">AT</span>
+        </div>
+        <div>
+          <h1 class="text-xl font-semibold text-[#111827] tracking-tight">AlgoTrust</h1>
+          <p class="text-[11px] text-[#6B7280]">
+            University Governance on Algorand
+          </p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 text-[11px] text-[#6B7280]">
+        <a href="dashboard.html"
+           class="px-3 py-1 rounded-full bg-white shadow-sm hover:bg-[#F3F4F6]">
+          ← Back to dashboard
+        </a>
+        <span id="splitWalletShort" class="px-3 py-1 rounded-full bg-white shadow-sm">
+          Wallet: —
+        </span>
+        <span class="px-3 py-1 rounded-full bg-[#EEF2FF] text-[#4F46E5] font-medium">
+          Algorand Testnet
+        </span>
+      </div>
+    </header>
+
+    <!-- Main layout -->
+    <main class="grid md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] gap-5 items-start">
+      <!-- Create / edit group -->
+      <section class="glass-card rounded-[28px] p-6">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h2 class="text-sm font-semibold text-[#111827]">Create expense group</h2>
+            <p class="text-[11px] text-[#9CA3AF]">
+              Add participants, total amount, and let AlgoTrust calculate the share.
+            </p>
+          </div>
+          <span class="text-[10px] px-2.5 py-1 rounded-full bg-[#F3F4F6] text-[#4B5563]">
+            Split the Bill
+          </span>
+        </div>
+
+        <form id="splitForm" class="space-y-4 text-[0.85rem]">
+          <div>
+            <label class="block text-[#4B5563] mb-1">Group name</label>
+            <input
+              type="text"
+              id="groupName"
+              class="input-ios"
+              placeholder="CS Department project, hostel dinner, club event..."
+            />
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[#4B5563] mb-1">Total amount (ALGO)</label>
+              <input
+                type="number"
+                id="totalAmount"
+                class="input-ios"
+                min="0"
+                step="0.01"
+                placeholder="0.00"
+              />
+            </div>
+            <div>
+              <label class="block text-[#4B5563] mb-1">Optional note</label>
+              <input
+                type="text"
+                id="groupNote"
+                class="input-ios"
+                placeholder="Snacks after hackathon, trip, printing..."
+              />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-[#4B5563] mb-1">Participants</label>
+            <p class="text-[11px] text-[#9CA3AF] mb-2">
+              Add Algorand addresses or campus wallet labels. Each line is one participant.
+            </p>
+            <textarea
+              id="participants"
+              rows="4"
+              class="input-ios"
+              placeholder="alice@campus · ALGO address&#10;bob@campus · ALGO address&#10;charlie@campus · ALGO address"
+            ></textarea>
+          </div>
+
+          <button
+            type="button"
+            id="calculateBtn"
+            class="btn-primary-ios bg-[#4F46E5] text-white hover:bg-[#4338CA]"
+          >
+            Calculate split
+          </button>
+        </form>
+
+        <!-- Error / info -->
+        <p id="splitError" class="mt-3 text-[0.8rem] text-[#DC2626] hidden"></p>
+      </section>
+
+      <!-- Result & settlement -->
+      <section class="glass-card rounded-[28px] p-6">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h2 class="text-sm font-semibold text-[#111827]">Per-person share</h2>
+            <p class="text-[11px] text-[#9CA3AF]">
+              Review the split and trigger settlement when ready.
+            </p>
+          </div>
+          <span class="text-[10px] px-2.5 py-1 rounded-full bg-[#F3F4F6] text-[#4B5563]">
+            Client-side calculation
+          </span>
+        </div>
+
+        <div id="summaryBox" class="mb-4 text-[0.8rem] text-[#4B5563] hidden">
+          <p>
+            Group <span id="summaryName" class="font-medium text-[#111827]"></span>,
+            <span id="summaryCount"></span> participants,
+            total <span id="summaryTotal"></span> ALGO.
+          </p>
+          <p class="mt-1 text-[0.75rem] text-[#9CA3AF]" id="summaryNote"></p>
+        </div>
+
+        <div id="shareList" class="space-y-2 text-[0.8rem] max-h-64 overflow-auto">
+          <!-- Populated by JS -->
+        </div>
+
+        <button
+          type="button"
+          id="settleBtn"
+          class="btn-primary-ios bg-[#111827] text-white hover:bg-black mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled
+        >
+          Settle on Algorand (coming soon)
+        </button>
+
+        <p class="mt-3 text-[0.75rem] text-[#9CA3AF] leading-relaxed">
+          In the full implementation, this button will create a grouped transaction
+          from your wallet to each participant, with one ALGO payment per person.
+          For now, use this view as a guide for manual Testnet transfers.
+        </p>
+      </section>
+    </main>
+
+    <footer class="mt-8 text-[11px] text-[#9CA3AF] flex items-center justify-between">
+      <span>AlgoTrust · Split the Bill</span>
+      <span>Frontend prototype · Testnet only</span>
+    </footer>
+  </div>
+
+  <script type="module">
+    const addr = localStorage.getItem('walletAddress');
+    if (addr) {
+      const short = addr.length > 8 ? `${addr.slice(0,4)}…${addr.slice(-4)}` : addr;
+      document.getElementById('splitWalletShort').textContent = `Wallet: ${short}`;
+    }
+
+    const calculateBtn = document.getElementById('calculateBtn');
+    const errorEl = document.getElementById('splitError');
+    const shareList = document.getElementById('shareList');
+    const summaryBox = document.getElementById('summaryBox');
+    const summaryName = document.getElementById('summaryName');
+    const summaryCount = document.getElementById('summaryCount');
+    const summaryTotal = document.getElementById('summaryTotal');
+    const summaryNote = document.getElementById('summaryNote');
+    const settleBtn = document.getElementById('settleBtn');
+
+    calculateBtn.onclick = () => {
+      errorEl.classList.add('hidden');
+      shareList.innerHTML = '';
+      summaryBox.classList.add('hidden');
+      settleBtn.disabled = true;
+
+      const name = (document.getElementById('groupName').value || '').trim();
+      const total = parseFloat(document.getElementById('totalAmount').value);
+      const note = (document.getElementById('groupNote').value || '').trim();
+      const raw = document.getElementById('participants').value || '';
+
+      const lines = raw
+        .split('\n')
+        .map(l => l.trim())
+        .filter(l => l.length > 0);
+
+      if (!lines.length || isNaN(total) || total <= 0) {
+        errorEl.textContent = 'Enter a positive total amount and at least one participant.';
+        errorEl.classList.remove('hidden');
+        return;
+      }
+
+      const perHead = total / lines.length;
+
+      summaryName.textContent = name || 'Unnamed group';
+      summaryCount.textContent = `${lines.length}`;
+      summaryTotal.textContent = total.toFixed(2);
+      summaryNote.textContent = note ? note : '';
+      summaryBox.classList.remove('hidden');
+
+      lines.forEach((line, idx) => {
+        const row = document.createElement('div');
+        row.className =
+          'flex items-center justify-between rounded-[16px] bg-white border border-[#E5E7EB] px-3 py-2';
+
+        const label = document.createElement('div');
+        label.className = 'flex flex-col';
+        const title = document.createElement('span');
+        title.className = 'text-[0.8rem] text-[#111827]';
+        title.textContent = line;
+        const sub = document.createElement('span');
+        sub.className = 'text-[0.7rem] text-[#9CA3AF]';
+        sub.textContent = `Participant ${idx + 1}`;
+
+        label.appendChild(title);
+        label.appendChild(sub);
+
+        const amount = document.createElement('span');
+        amount.className = 'text-[0.8rem] font-medium text-[#111827]';
+        amount.textContent = `${perHead.toFixed(2)} ALGO`;
+
+        row.appendChild(label);
+        row.appendChild(amount);
+        shareList.appendChild(row);
+      });
+
+      settleBtn.disabled = false;
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AlgoTrust · Dashboard</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="bg-[#EEF2FF] min-h-screen">
+  <div class="max-w-6xl mx-auto px-4 py-6">
+    <!-- Top bar -->
+    <header class="flex items-center justify-between mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-2xl bg-[#111827] flex items-center justify-center">
+          <span class="text-white text-[11px] font-semibold tracking-[0.14em]">AT</span>
+        </div>
+        <div>
+          <h1 class="text-xl font-semibold text-[#111827] tracking-tight">AlgoTrust</h1>
+          <p class="text-[11px] text-[#6B7280]">
+            University Governance on Algorand
+          </p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 text-[11px] text-[#6B7280]">
+        <span id="dashWalletShort" class="px-3 py-1 rounded-full bg-white shadow-sm">
+          Wallet: —
+        </span>
+        <span id="dashAlgoBalance" class="px-3 py-1 rounded-full bg-white shadow-sm">
+          0 ALGO
+        </span>
+        <span class="px-3 py-1 rounded-full bg-[#EEF2FF] text-[#4F46E5] font-medium">
+          Algorand Testnet
+        </span>
+      </div>
+    </header>
+
+    <!-- Overview -->
+    <section class="glass-card rounded-[28px] p-6 mb-6">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h2 class="text-sm font-semibold text-[#111827]">Overview</h2>
+          <p class="text-[11px] text-[#9CA3AF]">
+            Snapshot of on-chain activity for your campus.
+          </p>
+        </div>
+        <span class="text-[10px] px-2.5 py-1 rounded-full bg-[#F3F4F6] text-[#4B5563]">
+          App ID: <span id="appId">123456</span>
+        </span>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+        <div class="stat-tile">
+          <span class="text-[#6B7280]">Active Proposals</span>
+          <span id="statProposals" class="text-lg font-semibold text-[#111827] block mt-1">0</span>
+        </div>
+        <div class="stat-tile">
+          <span class="text-[#6B7280]">Funds Raised</span>
+          <span id="statFunds" class="text-lg font-semibold text-[#111827] block mt-1">0 ALGO</span>
+        </div>
+        <div class="stat-tile">
+          <span class="text-[#6B7280]">Campaigns</span>
+          <span id="statCampaigns" class="text-lg font-semibold text-[#111827] block mt-1">0</span>
+        </div>
+        <div class="stat-tile">
+          <span class="text-[#6B7280]">On-chain Txns</span>
+          <span id="statTxns" class="text-lg font-semibold text-[#111827] block mt-1">0</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Feature cards -->
+    <section class="grid md:grid-cols-3 gap-4">
+      <!-- Voting -->
+      <a href="voting.html"
+         class="relative rounded-[24px] overflow-hidden bg-white shadow-[0_18px_40px_rgba(15,23,42,0.08)] group">
+        <div class="h-28 bg-gradient-to-tr from-[#4F46E5] via-[#6366F1] to-[#38BDF8]"></div>
+        <div class="p-4">
+          <p class="text-[11px] text-[#6B7280] mb-1">🗳 Voting</p>
+          <h3 class="text-sm font-semibold text-[#111827]">
+            On-Chain Governance
+          </h3>
+          <p class="mt-1 text-[0.8rem] text-[#6B7280]">
+            Create proposals and record student votes directly on Algorand.
+          </p>
+        </div>
+      </a>
+
+      <!-- Crowdfunding -->
+      <a href="crowdfunding.html"
+         class="relative rounded-[24px] overflow-hidden bg-white shadow-[0_18px_40px_rgba(15,23,42,0.08)] group">
+        <div class="h-28 bg-gradient-to-tr from-[#22C55E] via-[#4ADE80] to-[#A7F3D0]"></div>
+        <div class="p-4">
+          <p class="text-[11px] text-[#6B7280] mb-1">💰 Crowdfunding</p>
+          <h3 class="text-sm font-semibold text-[#111827]">
+            Decentralized Campaigns
+          </h3>
+          <p class="mt-1 text-[0.8rem] text-[#6B7280]">
+            Raise and manage funds for campus initiatives with transparent escrows.
+          </p>
+        </div>
+      </a>
+
+      <!-- Split -->
+      <a href="split.html"
+         class="relative rounded-[24px] overflow-hidden bg-white shadow-[0_18px_40px_rgba(15,23,42,0.08)] group">
+        <div class="h-28 bg-gradient-to-tr from-[#0EA5E9] via-[#38BDF8] to-[#BFDBFE]"></div>
+        <div class="p-4">
+          <p class="text-[11px] text-[#6B7280] mb-1">🧾 Split the Bill</p>
+          <h3 class="text-sm font-semibold text-[#111827]">
+            Expense Settlement
+          </h3>
+          <p class="mt-1 text-[0.8rem] text-[#6B7280]">
+            Share costs across participants and settle instantly on-chain.
+          </p>
+        </div>
+      </a>
+    </section>
+
+    <!-- Lower row: quick links / admin -->
+    <section class="mt-6 grid md:grid-cols-2 gap-4">
+      <div class="glass-card rounded-[24px] p-4">
+        <h3 class="text-sm font-semibold text-[#111827] mb-2">Quick links</h3>
+        <div class="flex flex-wrap gap-2 text-[0.8rem]">
+          <a href="voting.html" class="badge-chip bg-[#F3F4F6] text-[#4B5563]">Go to Voting</a>
+          <a href="crowdfunding.html" class="badge-chip bg-[#F3F4F6] text-[#4B5563]">Go to Crowdfunding</a>
+          <a href="split.html" class="badge-chip bg-[#F3F4F6] text-[#4B5563]">Go to Split Bill</a>
+        </div>
+      </div>
+
+      <div class="glass-card rounded-[24px] p-4">
+        <h3 class="text-sm font-semibold text-[#111827] mb-2">Admin & Explorer</h3>
+        <p class="text-[0.8rem] text-[#6B7280] mb-2">
+          View the AlgoTrust smart contract on Algorand Testnet or open the admin tools.
+        </p>
+        <div class="flex flex-wrap gap-2 text-[0.8rem]">
+          <a href="admin.html" class="badge-chip bg-[#EEF2FF] text-[#4F46E5]">
+            Admin Panel
+          </a>
+          <a id="explorerLink"
+             href="https://testnet.algoexplorer.io/application/123456"
+             target="_blank"
+             class="badge-chip bg-[#F3F4F6] text-[#4B5563]">
+            Open in Explorer
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <footer class="mt-8 text-[11px] text-[#9CA3AF] flex items-center justify-between">
+      <span>AlgoTrust · University Governance on Algorand</span>
+      <span>Frontend prototype · Testnet only</span>
+    </footer>
+  </div>
+
+  <script type="module">
+    const addr = localStorage.getItem('walletAddress');
+    if (addr) {
+      const short = addr.length > 8 ? `${addr.slice(0,4)}…${addr.slice(-4)}` : addr;
+      document.getElementById('dashWalletShort').textContent = `Wallet: ${short}`;
+    }
+
+    const APP_ID = 123456; // replace after smart contract deploy
+    document.getElementById('appId').textContent = APP_ID.toString();
+    document.getElementById('explorerLink').href =
+      `https://testnet.algoexplorer.io/application/${APP_ID}`;
+  </script>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AlgoTrust · Verify with Algorand</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="min-h-screen flex items-center justify-center bg-[#EEF2FF]">
+  <div class="max-w-4xl w-full px-4">
+    <div class="w-full rounded-[32px] bg-white shadow-[0_22px_60px_rgba(15,23,42,0.12)] overflow-hidden grid md:grid-cols-2">
+      <!-- Left panel -->
+      <div class="relative bg-gradient-to-br from-[#E0ECFF] via-[#D9F3FF] to-[#F8FBFF] p-8 flex flex-col justify-between">
+        <div>
+          <p class="text-[11px] font-medium text-[#4B5563] tracking-[0.16em] uppercase">
+            Algorand · Campus
+          </p>
+          <h1 class="mt-4 text-2xl font-semibold text-[#111827] leading-snug">
+            AlgoTrust for<br />
+            modern universities
+          </h1>
+          <p class="mt-3 text-[0.9rem] text-[#4B5563] max-w-xs">
+            Secure student voting, transparent crowdfunding and effortless
+            expense settlement — verified on Algorand Testnet.
+          </p>
+        </div>
+
+        <div class="mt-8">
+          <div class="w-full aspect-[4/3] rounded-[24px] bg-gradient-to-tr from-[#4F46E5] via-[#6366F1] to-[#38BDF8] shadow-lg relative overflow-hidden">
+            <div class="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top,_white,_transparent_55%)]"></div>
+            <div class="absolute bottom-6 left-6 text-white">
+              <p class="text-[11px] uppercase tracking-[0.18em]">University Network</p>
+              <p class="text-sm font-medium mt-1">Verified campus identity</p>
+            </div>
+            <div class="absolute -bottom-10 right-4 w-32 h-32 rounded-full bg-white/20 blur-2xl"></div>
+            <div class="absolute top-6 right-6 flex flex-col items-end gap-1 text-[10px] text-white/90">
+              <span class="px-2 py-1 rounded-full bg-white/15 backdrop-blur-sm">
+                Student voting
+              </span>
+              <span class="px-2 py-1 rounded-full bg-white/15 backdrop-blur-sm">
+                Crowdfunding
+              </span>
+              <span class="px-2 py-1 rounded-full bg-white/15 backdrop-blur-sm">
+                Split expenses
+              </span>
+            </div>
+          </div>
+          <p class="mt-3 text-[0.75rem] text-[#6B7280]">
+            Connect a Testnet-funded wallet with Pera Wallet to explore AlgoTrust features.
+          </p>
+        </div>
+      </div>
+
+      <!-- Right panel -->
+      <div class="p-8 sm:p-9 flex flex-col justify-center bg-white">
+        <div class="flex items-center justify-between mb-6">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-2xl bg-[#111827] flex items-center justify-center">
+              <span class="text-white text-[11px] font-semibold tracking-[0.14em]">AT</span>
+            </div>
+            <div>
+              <p class="text-[11px] text-[#9CA3AF]">Welcome to</p>
+              <h2 class="text-lg font-semibold text-[#111827]">AlgoTrust Portal</h2>
+            </div>
+          </div>
+          <span class="text-[10px] px-2.5 py-1 rounded-full bg-[#EEF2FF] text-[#4F46E5] font-medium">
+            Algorand Testnet
+          </span>
+        </div>
+
+        <p class="text-[0.88rem] text-[#6B7280] mb-5">
+          Use your Algorand wallet as a campus ID. Once verified, you can access
+          governance, crowdfunding, and expense tools built for universities.
+        </p>
+
+        <div class="mb-4 space-y-2 text-[0.78rem]">
+          <div class="flex items-center justify-between">
+            <span class="text-[#6B7280]">Wallet</span>
+            <span id="loginWalletShort"
+                  class="px-2.5 py-1 rounded-full bg-[#F3F4F6] text-[#374151]">
+              not connected
+            </span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-[#6B7280]">Network</span>
+            <span class="px-2.5 py-1 rounded-full bg-[#EEF2FF] text-[#4F46E5]">
+              Algorand Testnet
+            </span>
+          </div>
+        </div>
+
+        <button
+          id="verifyBtn"
+          class="w-full h-11 mt-1 rounded-[999px] bg-[#4F46E5] text-white text-[0.9rem] font-semibold flex items-center justify-center gap-2 hover:bg-[#4338CA] transition"
+        >
+          <span>Verify with Algorand</span>
+        </button>
+
+        <p class="mt-4 text-[0.75rem] text-[#9CA3AF] leading-relaxed">
+          Verification is performed via a signed transaction in Pera Wallet.
+          Your keys never leave your device; AlgoTrust only stores your address.
+        </p>
+
+        <div class="mt-5 border-t border-[#E5E7EB] pt-3 text-[0.75rem] text-[#9CA3AF] flex items-center justify-between">
+          <span>Designed for colleges, student unions and clubs.</span>
+          <span class="hidden sm:inline">v0.1 · Frontend prototype</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    const btn = document.getElementById('verifyBtn');
+    const label = document.getElementById('loginWalletShort');
+
+    btn.onclick = () => {
+      const fake = 'TEST-ALGO-ADDR-123456';
+      localStorage.setItem('walletAddress', fake);
+      const short = fake.length > 8 ? `${fake.slice(0,4)}…${fake.slice(-4)}` : fake;
+      label.textContent = short;
+      window.location.href = 'dashboard.html';
+    };
+  </script>
+</body>
+</html>
