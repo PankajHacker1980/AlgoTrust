@@ -14,8 +14,8 @@
   />
   <!-- Algorand SDK -->
   <script src="https://unpkg.com/algosdk@2.4.0/dist/browser/algosdk.min.js"></script>
-  <!-- Pera Wallet SDK (browser bundle that exposes window.PeraWalletConnect) -->
-  <script src="https://perawallet.app/pera-wallet-connect/peraWalletConnect.min.js"></script>
+  <!-- Pera Wallet Connect SDK: npm UMD bundle via jsDelivr -->
+  <script src="https://cdn.jsdelivr.net/npm/@perawallet/connect@1.4.2/dist/umd/index.min.js"></script>
 
   <style>
     body {
@@ -220,35 +220,57 @@
     const statusPanel = document.getElementById("wallet-status");
     const addressText = document.getElementById("account-address");
 
+    // Helper: get constructor from UMD bundle
+    function getPeraCtor() {
+      // UMD exposes namespace object on window.PeraWalletConnect
+      if (
+        window.PeraWalletConnect &&
+        typeof window.PeraWalletConnect.PeraWalletConnect === "function"
+      ) {
+        return window.PeraWalletConnect.PeraWalletConnect;
+      }
+      // Fallback: some builds may expose directly as function
+      if (typeof window.PeraWalletConnect === "function") {
+        return window.PeraWalletConnect;
+      }
+      return null;
+    }
+
     // Initialize PeraWallet and attempt to reconnect on page load
     window.addEventListener("load", () => {
-      if (window.PeraWalletConnect) {
-        peraWallet = new PeraWalletConnect();
+      console.log("window.PeraWalletConnect =", window.PeraWalletConnect);
 
-        peraWallet
-          .reconnectSession()
-          .then((accounts) => {
-            peraWallet.connector?.on("disconnect", handleDisconnect);
+      const PeraCtor = getPeraCtor();
 
-            if (accounts && accounts.length > 0) {
-              updateUI(accounts[0]);
-              alert("Pera Wallet reconnected successfully.");
-            } else {
-              handleDisconnect();
-            }
-          })
-          .catch((err) => {
-            console.info("No active Pera Wallet session found.", err);
-            handleDisconnect();
-          });
-      } else {
+      if (!PeraCtor) {
         console.error(
-          "Pera Wallet SDK global not found on window. Check peraWalletConnect.min.js load."
+          "Pera Wallet SDK global not found. window.PeraWalletConnect dump:",
+          window.PeraWalletConnect
         );
         alert(
-          "Pera Wallet SDK could not be initialized. Open DevTools → Network and Console."
+          "Pera Wallet SDK could not be initialized. Open DevTools → Console and check window.PeraWalletConnect."
         );
+        return;
       }
+
+      peraWallet = new PeraCtor();
+
+      peraWallet
+        .reconnectSession()
+        .then((accounts) => {
+          peraWallet.connector?.on("disconnect", handleDisconnect);
+
+          if (accounts && accounts.length > 0) {
+            updateUI(accounts[0]);
+            alert("Pera Wallet reconnected successfully.");
+          } else {
+            handleDisconnect();
+          }
+        })
+        .catch((err) => {
+          console.info("No active Pera Wallet session found.", err);
+          handleDisconnect();
+        });
     });
 
     // Connect button click
@@ -281,7 +303,7 @@
 
       setLoading(true);
       try {
-        const accounts = await peraWallet.connect();
+        const accounts = await peraWallet.connect(); // Promise<string[]>[web:22]
 
         peraWallet.connector?.on("disconnect", handleDisconnect);
 
@@ -294,7 +316,9 @@
       } catch (error) {
         if (error?.data?.type !== "CONNECT_MODAL_CLOSED") {
           console.error("Connection error:", error);
-          alert("Connection failed. Ensure Pera Wallet is installed and try again.");
+          alert(
+            "Connection failed. Ensure Pera Wallet is installed and try again."
+          );
         }
       } finally {
         setLoading(false);
